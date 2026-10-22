@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState, type FormEvent } from 'react'
+import { lazy, Suspense, useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { HashRouter, Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import {
   ArrowDownRight, ArrowRight, ArrowUpRight, BookOpen, Check, Code2, Compass, Film,
@@ -79,7 +79,7 @@ function Footer() {
   </div></footer>
 }
 
-function Eyebrow({children}: {children: React.ReactNode}) {
+function Eyebrow({children}: {children: ReactNode}) {
   return <span className="eyebrow"><span className="dot"/> {children}</span>
 }
 function Intro({code, title, desc}: {code: string; title: string; desc: string}) {
@@ -202,8 +202,8 @@ function Register() {
 function NotFound() {return <div className="not-found wrap"><span>404 / LOST IN SPACE</span><h1>Trang này chưa tồn tại.</h1><p>Đôi khi một đường dẫn cũng cần một chút sáng tạo.</p><Link className="btn btn-ink" to="/">Trở về trang chủ <ArrowRight size={18}/></Link></div>}
 
 function AppShell() {
-  return <><Header/><main id="main"><Routes><Route path="/" element={<Home/>}/><Route path="/gioi-thieu" element={<About/>}/><Route path="/hoat-dong" element={<Activities/>}/><Route path="/dang-ky" element={<Register/>}/><Route path="*" element={<NotFound/>}/></Routes></main><Footer/></>
+  return <><Header/><main id="main" tabIndex={-1}><Routes><Route path="/" element={<Home/>}/><Route path="/gioi-thieu" element={<About/>}/><Route path="/hoat-dong" element={<Activities/>}/><Route path="/dang-ky" element={<Register/>}/><Route path="*" element={<NotFound/>}/></Routes></main><Footer/></>
 }
 export default function App() {
-  return <HashRouter><a className="skip-link" href="#main">Bỏ qua điều hướng</a><AppShell/></HashRouter>
+  return <HashRouter><button className="skip-link" onClick={() => document.getElementById('main')?.focus()}>Bỏ qua điều hướng</button><AppShell/></HashRouter>
 }
