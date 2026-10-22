@@ -4,13 +4,13 @@ import { Link } from 'react-router-dom'
 
 type Keyframe = { at: number; x: number; y: number; rotation: number; scale: number; yaw: number }
 const path: Keyframe[] = [
-  { at: 0, x: -.40, y: .12, rotation: -12, scale: .75, yaw: 0 },
-  { at: .17, x: -.08, y: -.01, rotation: -7, scale: 1.02, yaw: 0 },
-  { at: .33, x: .28, y: -.14, rotation: -17, scale: 1.15, yaw: 0 },
+  { at: 0, x: .12, y: .16, rotation: -12, scale: .75, yaw: 0 },
+  { at: .17, x: .25, y: -.01, rotation: -7, scale: 1.02, yaw: 0 },
+  { at: .33, x: .34, y: -.14, rotation: -17, scale: 1.15, yaw: 0 },
   { at: .43, x: .33, y: .04, rotation: 9, scale: 1.03, yaw: 180 },
   { at: .62, x: -.23, y: .16, rotation: 5, scale: .98, yaw: 180 },
   { at: .73, x: -.38, y: -.08, rotation: -12, scale: .87, yaw: 360 },
-  { at: .88, x: .02, y: -.02, rotation: -9, scale: 1.07, yaw: 360 },
+  { at: .88, x: .22, y: -.02, rotation: -9, scale: 1.07, yaw: 360 },
   { at: 1, x: .4, y: -.26, rotation: -22, scale: .65, yaw: 360 },
 ]
 
@@ -141,8 +141,9 @@ export default function ScrollKoiStory() {
     let current = 0
     let previous = 0
     let ticking = false
+    stage.dataset.chapter = '0'
     const paint = () => {
-      current += (desired - current) * .16
+      current += (desired - current) * .55
       if (Math.abs(current - desired) < .00012) current = desired
       const sampled = sample(current)
       const vw = window.innerWidth
@@ -159,6 +160,7 @@ export default function ScrollKoiStory() {
       const next = current < .255 ? 0 : current < .50 ? 1 : current < .755 ? 2 : 3
       if (next !== activeRef.current) {
         activeRef.current = next
+        stage.dataset.chapter = String(next)
         setActive(next)
       }
       if (Math.abs(current - desired) > .00012) frame = window.requestAnimationFrame(paint)
@@ -198,7 +200,7 @@ export default function ScrollKoiStory() {
           <span className="koi-kicker"><span>✳</span>{chapter.kicker}</span>
           <h2>{chapter.title}</h2>
           <p>{chapter.description}</p>
-          {index === 3 && <Link className="koi-join" to="/dang-ky">Khám phá hành trình <ArrowUpRight size={17}/></Link>}
+          {index === 3 && <Link className="koi-join" to="/dang-ky" tabIndex={active === index ? 0 : -1}>Khám phá hành trình <ArrowUpRight size={17}/></Link>}
         </div>)}
       </div>
       <div className="koi-bottom-rail"><span className="koi-bottom-label">MỘT Ý TƯỞNG, NHIỀU KHẢ NĂNG.</span>
