@@ -4,6 +4,7 @@ import { Color, InstancedMesh, Object3D, Vector3 } from 'three'
 import { ArrowDown, ArrowUpRight, Blocks, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useScrollScene } from '../hooks/useScrollScene'
+import SceneErrorBoundary from './SceneErrorBoundary'
 
 const palette=['#cdbaf1','#a8d9cd','#f7c8ad','#b5d3f6','#ead2f4','#fae0a6','#8fcfc4']
 type Brick={x:number;y:number;z:number;color:string;seed:number;rank:number}
@@ -123,7 +124,7 @@ export default function LegoActivitiesVisual(){
       </div>
       <div className="motion-visual city-visual">
         <div className="city-tag city-tag-top">DESIGN + CODE + CREATE</div>
-        <CityCanvas progressRef={progressRef} reduced={reducedMotion}/>
+        <SceneErrorBoundary label="Thành phố sáng tạo"><CityCanvas progressRef={progressRef} reduced={reducedMotion}/></SceneErrorBoundary>
         <div className="city-tag city-tag-bottom">ONE BLOCK AT A TIME ✳</div>
       </div>
       <button type="button" className="motion-skip" onClick={() => sectionRef.current?.nextElementSibling?.scrollIntoView({behavior: reducedMotion ? 'auto' : 'smooth',block:'start'})}>BỎ QUA HIỆU ỨNG ↗</button>
