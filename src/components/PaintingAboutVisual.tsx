@@ -37,10 +37,21 @@ function strokeTip(p: number) {
   const index = Math.min(strokes.length - 1, Math.floor(scaled))
   const mark = strokes[index]
   const f = clamp(scaled - index)
-  // The visible brush tip follows the actual Bézier curve, not a disconnected path.
-  const x = mark.x + mark.dx * f
-  const y = mark.y + 2 * (1 - f) * f * mark.bow
-  return { x: Math.max(19, Math.min(W - 19, x)), y: Math.max(18, Math.min(H - 18, y)), angle: Math.atan2(mark.bow * (1 - 2 * f) * 2, mark.dx) * 180 / Math.PI }
+  // Lift and travel between strokes; no visible teleporting when a pass ends.
+  if (index > 0 && f < .18) {
+    const previous = strokes[index - 1]
+    const t = f / .18
+    const glide = t * t * (3 - 2 * t)
+    return {
+      x: Math.max(19, Math.min(W - 19, previous.x + previous.dx + (mark.x - previous.x - previous.dx) * glide)),
+      y: Math.max(18, Math.min(H - 18, previous.y + (mark.y - previous.y) * glide - Math.sin(t * Math.PI) * 13)),
+      angle: -8,
+    }
+  }
+  const paintFraction = clamp((f - .18) / .82)
+  const x = mark.x + mark.dx * paintFraction
+  const y = mark.y + 2 * (1 - paintFraction) * paintFraction * mark.bow
+  return { x: Math.max(19, Math.min(W - 19, x)), y: Math.max(18, Math.min(H - 18, y)), angle: Math.atan2(mark.bow * (1 - 2 * paintFraction) * 2, mark.dx) * 180 / Math.PI }
 }
 
 function drawLine(ctx: CanvasRenderingContext2D, mark: Stroke, fraction: number, offset: number, width: number) {
@@ -84,7 +95,8 @@ function renderPainting(
   const visible = Math.min(strokes.length, Math.ceil(count))
   for (let i = 0; i < visible; i++) {
     const mark = strokes[i]
-    const f = clamp(count - i)
+    const f = clamp((count - i - .18) / .82)
+    if (f <= 0) continue
     const pressure = .87 + .13 * Math.sin(f * Math.PI)
     m.strokeStyle = '#fff'
     m.globalAlpha = .98
@@ -120,7 +132,7 @@ function renderPainting(
   ctx.lineCap = 'round'
   for (let i = 0; i < visible; i++) {
     const mark = strokes[i]
-    const f = clamp(count - i)
+    const f = clamp((count - i - .18) / .82)
     if (f <= 0 || i % 2 !== 0) continue
     ctx.strokeStyle = pigment[i] || 'rgba(106,142,204,.2)'
     ctx.globalAlpha = .26
