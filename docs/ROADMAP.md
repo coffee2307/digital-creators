@@ -10,17 +10,18 @@ Website tiếng Việt cho CLB Sáng tạo số trong giai đoạn đề xuất 
 - [x] 3D tạo bằng hình học Three.js, không sao chép tài nguyên PeachWeb.
 - [x] Form demo: không gửi / không lưu dữ liệu thật.
 - [x] Responsive, hạn chế chuyển động, fallback thiết bị thiếu WebGL.
-- [x] CI build và cấu hình SPA Cloudflare Pages.
+- [x] CI build và workflow triển khai website tĩnh bằng GitHub Pages.
 
-## Phase 2 — Immersive story (đã triển khai nền tảng 2.5D)
-- [x] Hành trình cuộn 4 chương: cá chép minh họa SVG gốc di chuyển/đổi hướng/đổi tỷ lệ theo scroll thực, không phải video chạy tự động.
-- [x] Creative Playground: đổi màu tức thì, phát/tạm dừng motion, minh họa code.
-- [x] IntersectionObserver reveal từng phần tử; người chọn giảm chuyển động vẫn đọc được đủ 4 chương.
-- [ ] Nâng từ 2.5D lên mô hình 3D GLB/GLTF chân thực hơn nếu thực sự cải thiện trải nghiệm và giữ FPS.
-- [ ] Tương tác riêng cho 5 lĩnh vực (design/video/web/code/content).
-- [ ] Điều hướng camera theo ngữ cảnh và mobile scene tối giản.
-- [ ] Asset GLB/GLTF tự tạo có texture nén, progressive loading.
-- [ ] Hiệu ứng âm thanh tùy chọn và tắt mặc định.
+## Phase 2 — Ba cảnh tương tác theo từng trang
+- [x] Trang chủ: Rubik 3×3 thực sự gồm cubie/sticker 3D; chuỗi xoay đảo ngược từ scramble đến solved phụ thuộc thanh cuộn.
+- [x] Trang Giới thiệu: mô phỏng vector 2.5D một tờ giấy lần lượt gấp thành hạc giấy.
+- [x] Trang Hoạt động: thành phố khối lắp ghép 3D với instancing, xuất hiện từng tầng theo cuộn.
+- [x] Bỏ nền hình tròn trang trí trên hai trang Giới thiệu và Hoạt động.
+- [x] Tách tải các cảnh theo trang, giữ React + Vite + Three.js chạy trên hosting tĩnh.
+- [x] Creative Playground, reveal theo cuộn, hỗ trợ giảm chuyển động.
+- [ ] Tối ưu tốc độ tải ban đầu, kiểm thử thiết bị GPU yếu và đánh giá Lighthouse.
+- [ ] Nếu cần độ chân thực cao hơn: phát triển trình tự gấp hạc theo các khớp giấy 3D thực, thay mô phỏng 2.5D.
+- [ ] Kiểm thử trải nghiệm cuộn bằng trackpad, chuột và điện thoại thực tế.
 
 ## Phase 3 — Nội dung và hệ thống quản trị
 - [ ] Thư viện dự án thật khi CLB hình thành, có phê duyệt nội dung.
