@@ -126,6 +126,7 @@ export default function LegoActivitiesVisual(){
         <CityCanvas progressRef={progressRef} reduced={reducedMotion}/>
         <div className="city-tag city-tag-bottom">ONE BLOCK AT A TIME ✳</div>
       </div>
+      <button type="button" className="motion-skip" onClick={() => sectionRef.current?.nextElementSibling?.scrollIntoView({behavior: reducedMotion ? 'auto' : 'smooth',block:'start'})}>BỎ QUA HIỆU ỨNG ↗</button>
       <div className="motion-footer"><span>CREATE / BUILD / CONNECT</span><div className="motion-progress"><i style={{width:(progress*100)+'%'}}/></div><strong>0{phase+1} / 03</strong></div>
     </div>
   </section>
