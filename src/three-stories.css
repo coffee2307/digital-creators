@@ -80,3 +80,8 @@
 .teaser-preview-footer{position:absolute;bottom:28px;left:26px;right:27px;display:flex;justify-content:space-between;align-items:center;font:800 10px Outfit,sans-serif;letter-spacing:1.3px;color:#9a90b4}.teaser-preview-footer span:last-child{display:flex;align-items:center;gap:8px}
 .visual-scene-loading{min-height:70vh;display:grid;place-items:center;background:#f7f3f8;color:#8e80a4;font-size:12px;letter-spacing:1px}
 @media(max-width:760px){.teaser-poster{height:335px;width:min(300px,78%);border-radius:24px;padding:0 19px 15px}.teaser-windowbar{height:41px}.teaser-windowbar small{font-size:7px}.teaser-preview-header{margin-top:13px}.teaser-preview-header strong{font-size:22px}.teaser-cube-grid{width:172px;height:172px;top:112px;border-radius:16px;padding:9px;gap:4px}.teaser-cube-grid i{border-radius:6px}.teaser-cube-grid:after{inset:9px}.teaser-preview-footer{bottom:23px;font-size:8px;left:19px;right:18px}}
+
+
+.scene-fallback-art{height:100%;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#7d6a9e;font-size:15px;font-weight:700;letter-spacing:-.3px}
+.scene-fallback-art span{font-size:11px;color:#948ba6;font-weight:500}
+.scene-fallback-symbol{width:185px;height:185px;display:grid;place-items:center;border-radius:27px;background:linear-gradient(145deg,#ebdafa,#cee8e6);transform:rotate(-12deg);font:800 100px Outfit,sans-serif;box-shadow:15px 17px 0 #bba8d5,25px 30px 30px #8677a72a}
