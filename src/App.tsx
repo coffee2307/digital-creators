@@ -7,10 +7,11 @@ import {
 } from 'lucide-react'
 import { focusAreas, interests, plannedActivities } from './data/site'
 const RubikScrollStory = lazy(() => import('./components/RubikScrollStory'))
-const OrigamiAboutVisual = lazy(() => import('./components/OrigamiAboutVisual'))
+const PaintingAboutVisual = lazy(() => import('./components/PaintingAboutVisual'))
 const LegoActivitiesVisual = lazy(() => import('./components/LegoActivitiesVisual'))
 import CreativeLab from './components/CreativeLab'
 import ScrollReveals from './components/ScrollReveals'
+import HeroRubikCard from './components/HeroRubikCard'
 
 const fieldIcons: LucideIcon[] = [Palette, Film, Globe2, Code2, WandSparkles]
 const menu = [
@@ -72,22 +73,6 @@ function Eyebrow({children}: {children: ReactNode}) {
 function Intro({code, title, desc}: {code: string; title: string; desc: string}) {
   return <div className="intro"><Eyebrow>{code}</Eyebrow><h2>{title}</h2><p>{desc}</p></div>
 }
-function Scene() {
-  const previewColors = ['#b4a0ff','#77dfd5','#f6adcf','#8fcaff','#e8c1ff','#f7bc99','#e3d678','#91eac3','#f1a6d3']
-  return <div className="scene-wrap teaser-scene" aria-label="Minh họa Rubik sáng tạo, xem hiệu ứng giải khi cuộn trang">
-    <div className="scene-blob scene-blob-a"/><div className="scene-blob scene-blob-b"/>
-    <div className="teaser-poster">
-      <div className="teaser-windowbar"><span/><span/><span/><small>digital-creators / lab-01</small></div>
-      <div className="teaser-preview-header"><span>CREATIVE LOGIC</span><strong>THINK<br/>BEYOND.</strong></div>
-      <div className="teaser-cube-grid">{previewColors.map((color,i)=><i key={i} style={{backgroundColor:color}} />)}</div>
-      <div className="teaser-preview-footer"><span>03 × 03</span><span>PLAY WITH IDEAS <Sparkles size={14}/></span></div>
-    </div>
-    <span className="scene-chip chip-one"><Palette size={17}/> DESIGN</span>
-    <span className="scene-chip chip-two"><Code2 size={17}/> CODE</span>
-    <span className="scene-chip chip-three"><Sparkles size={17}/> CREATE</span>
-    <span className="scene-help"><MousePointer2 size={15}/> Cuộn để Rubik tự xoay và tìm lời giải</span>
-  </div>
-}
 function FieldCards() {
   return <div className="fields">
     {focusAreas.map((field, i) => {
@@ -122,7 +107,7 @@ function Home() {
       <div className="hero-buttons"><Link className="btn btn-ink" to="/gioi-thieu">Tìm hiểu câu lạc bộ <ArrowUpRight size={18}/></Link><Link className="btn btn-white" to="/hoat-dong">Khám phá hoạt động <ArrowRight size={18}/></Link></div>
       <div className="hero-foot"><div className="triple-circles"><i/><i/><i/></div>SÁNG TẠO <b>·</b> KẾT NỐI <b>·</b> PHÁT TRIỂN</div>
       <button type="button" className="hero-scroll-story" onClick={() => document.getElementById('hanh-trinh')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })}>CUỘN ĐỂ KHÁM PHÁ KHÔNG GIAN CHUYỂN ĐỘNG <ArrowDownRight size={18}/></button>
-    </div><Scene/></section>
+    </div><HeroRubikCard/></section>
     <div className="marquee" aria-label="Sáng tạo, kết nối, phát triển"><div className="marquee-rail">{[0,1].map(i=><span key={i}>DESIGN <b>✳</b> CODE <b>✳</b> CREATE <b>✳</b> EXPLORE <b>✳</b> CONNECT <b>✳</b> </span>)}</div></div>
     <Suspense fallback={<div className="visual-scene-loading">Đang tải không gian Rubik…</div>}><RubikScrollStory/></Suspense>
     <section className="section wrap"><div className="section-heading"><Intro code="01 / KHÁM PHÁ" title="Có rất nhiều cách để sáng tạo." desc="Không cần giỏi sẵn từ đầu. Chỉ cần tò mò, dám thử và sẵn sàng cùng nhau học hỏi."/><span className="side-note">FIND YOUR THING ↗</span></div><FieldCards/></section>
@@ -144,7 +129,7 @@ function PageHeader({number, eyebrow, title, desc, clean = false}: {number: stri
 function About() {
   return <>
     <PageHeader number="01" eyebrow="GIỚI THIỆU" title="Một nơi dành cho những tâm trí tò mò." desc="Nơi những ý tưởng được lắng nghe, những kỹ năng được khám phá và những kết nối mới có cơ hội hình thành." clean/>
-    <Suspense fallback={<div className="visual-scene-loading">Đang chuẩn bị hạc giấy…</div>}><OrigamiAboutVisual/></Suspense>
+    <Suspense fallback={<div className="visual-scene-loading">Đang chuẩn bị không gian hội họa…</div>}><PaintingAboutVisual/></Suspense>
     <section className="wrap section about-content"><div className="about-main"><Eyebrow>VÌ SAO CÓ DIGITAL CREATORS?</Eyebrow><h2>Vì sáng tạo không nên chỉ nằm trong trí tưởng tượng.</h2><p>Trong thời đại công nghệ số, các kỹ năng như thiết kế đồ họa, chỉnh sửa video, lập trình và sáng tạo nội dung ngày càng hữu ích đối với học sinh. CLB được đề xuất nhằm tạo môi trường để các bạn tiếp cận những kỹ năng này, phát huy ý tưởng và học hỏi lẫn nhau.</p><div className="about-highlight"><Sparkles size={32}/><span>Học từ trải nghiệm. Lớn lên cùng ý tưởng.</span></div></div><div className="about-aside"><div className="about-sticker"><span>✳</span><strong>THINK.<br/>CREATE.<br/>SHARE.</strong></div></div></section>
     <section className="section wrap"><Intro code="NHỮNG ĐIỀU HƯỚNG TỚI" title="Mục tiêu của chúng mình." desc="Bốn định hướng để mỗi thành viên có cơ hội học hỏi và phát triển theo cách của riêng mình."/><div className="goal-grid">{[
       {icon: Palette, title:'Phát triển kỹ năng số', desc:'Sử dụng các công cụ thiết kế và công nghệ để tạo sản phẩm thực tế.'},
