@@ -133,6 +133,7 @@ function Home() {
       <p>Chào mừng bạn đến với <strong>Digital Creators</strong> — không gian để học sinh khám phá công nghệ, kết nối những người yêu sáng tạo và biến ý tưởng thành sản phẩm số.</p>
       <div className="hero-buttons"><Link className="btn btn-ink" to="/gioi-thieu">Tìm hiểu câu lạc bộ <ArrowUpRight size={18}/></Link><Link className="btn btn-white" to="/hoat-dong">Khám phá hoạt động <ArrowRight size={18}/></Link></div>
       <div className="hero-foot"><div className="triple-circles"><i/><i/><i/></div>SÁNG TẠO <b>·</b> KẾT NỐI <b>·</b> PHÁT TRIỂN</div>
+      <button type="button" className="hero-scroll-story" onClick={() => document.getElementById('hanh-trinh')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })}>CUỘN ĐỂ KHÁM PHÁ KHÔNG GIAN CHUYỂN ĐỘNG <ArrowDownRight size={18}/></button>
     </div><Scene/></section>
     <div className="marquee" aria-label="Sáng tạo, kết nối, phát triển"><div className="marquee-rail">{[0,1].map(i=><span key={i}>DESIGN <b>✳</b> CODE <b>✳</b> CREATE <b>✳</b> EXPLORE <b>✳</b> CONNECT <b>✳</b> </span>)}</div></div>
     <ScrollKoiStory/>
