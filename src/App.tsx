@@ -6,6 +6,8 @@ import {
   Shapes, Sparkles, UsersRound, WandSparkles, X, type LucideIcon,
 } from 'lucide-react'
 import { focusAreas, interests, plannedActivities } from './data/site'
+import ScrollKoiStory from './components/ScrollKoiStory'
+import CreativeLab from './components/CreativeLab'
 
 const CreativeScene = lazy(() => import('./components/CreativeScene'))
 const fieldIcons: LucideIcon[] = [Palette, Film, Globe2, Code2, WandSparkles]
@@ -133,10 +135,12 @@ function Home() {
     </div><Scene/></section>
     <div className="marquee" aria-label="Sáng tạo, kết nối, phát triển"><div className="marquee-rail">{[0,1].map(i=><span key={i}>DESIGN <b>✳</b> CODE <b>✳</b> CREATE <b>✳</b> EXPLORE <b>✳</b> CONNECT <b>✳</b> </span>)}</div></div>
     <section className="section wrap"><div className="section-heading"><Intro code="01 / KHÁM PHÁ" title="Có rất nhiều cách để sáng tạo." desc="Không cần giỏi sẵn từ đầu. Chỉ cần tò mò, dám thử và sẵn sàng cùng nhau học hỏi."/><span className="side-note">FIND YOUR THING ↗</span></div><FieldCards/></section>
+    <CreativeLab/>
     <section className="section story"><div className="wrap story-grid"><div className="story-art"><div className="orbit orbit-outer"/><div className="orbit orbit-inner"/><div className="idea-center"><Lightbulb size={78} strokeWidth={1.2}/></div><span className="idea-pill idea-top">IDEAS <Sparkles size={15}/></span><span className="idea-pill idea-bottom">MAKE IT REAL <ArrowUpRight size={15}/></span></div>
       <div className="story-content"><Eyebrow>02 / CÂU CHUYỆN</Eyebrow><h2>Từ một ý tưởng nhỏ, <em>có thể bắt đầu</em> điều lớn lao.</h2><p>Digital Creators được đề xuất nhằm tạo một môi trường học sinh cùng khám phá thiết kế, công nghệ và sáng tạo nội dung, học qua trải nghiệm và phát triển kỹ năng cùng nhau.</p><div className="story-values"><span><Check size={17}/> Học hỏi cùng nhau</span><span><Check size={17}/> Trân trọng mọi ý tưởng</span><span><Check size={17}/> Cùng tạo nên sản phẩm số</span></div><Link className="text-link" to="/gioi-thieu">Khám phá câu chuyện <ArrowUpRight size={18}/></Link></div>
     </div></section>
-    <section className="section wrap"><div className="section-heading"><Intro code="03 / CÙNG THỰC HIỆN" title="Không chỉ học. Chúng mình còn tạo ra." desc="Các nội dung sau là những hoạt động dự kiến tổ chức sau khi câu lạc bộ được thành lập."/><Link className="text-link" to="/hoat-dong">Xem tất cả <ArrowUpRight size={18}/></Link></div><ActivityCards/></section>
+    <ScrollKoiStory/>
+    <section className="section wrap"><div className="section-heading"><Intro code="04 / CÙNG THỰC HIỆN" title="Không chỉ học. Chúng mình còn tạo ra." desc="Các nội dung sau là những hoạt động dự kiến tổ chức sau khi câu lạc bộ được thành lập."/><Link className="text-link" to="/hoat-dong">Xem tất cả <ArrowUpRight size={18}/></Link></div><ActivityCards/></section>
     <section className="section wrap"><CallToAction/></section>
   </>
 }
