@@ -154,7 +154,7 @@ function Village({progressRef,reduced}:{progressRef:React.RefObject<number>;redu
   </group>
 }
 function CityCanvas({progressRef,reduced}:{progressRef:React.RefObject<number>;reduced:boolean}){
-  return <Canvas camera={{position:[12.8,10.4,15],fov:34}} dpr={[1,1.6]} gl={{alpha:true,antialias:true,powerPreference:'low-power'}}>
+  return <Canvas camera={{position:[12.8,10.4,15],fov:typeof window !== 'undefined' && window.innerWidth<=760 ? 40 : 34}} dpr={[1,1.6]} gl={{alpha:true,antialias:true,powerPreference:'low-power'}}>
     <ambientLight intensity={.7}/>
     <hemisphereLight args={['#ffffff','#b09cc4',.55]}/>
     <directionalLight position={[3,10,7]} intensity={1.5} color="#fff7ed"/>
