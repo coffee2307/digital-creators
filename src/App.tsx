@@ -12,30 +12,12 @@ const LegoActivitiesVisual = lazy(() => import('./components/LegoActivitiesVisua
 import CreativeLab from './components/CreativeLab'
 import ScrollReveals from './components/ScrollReveals'
 
-const CreativeScene = lazy(() => import('./components/CreativeScene'))
 const fieldIcons: LucideIcon[] = [Palette, Film, Globe2, Code2, WandSparkles]
 const menu = [
   { path: '/', label: 'Trang chủ' },
   { path: '/gioi-thieu', label: 'Giới thiệu' },
   { path: '/hoat-dong', label: 'Hoạt động' },
 ]
-
-function useReducedMotion() {
-  const [reduced, setReduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-  useEffect(() => {
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const update = () => setReduced(media.matches)
-    media.addEventListener('change', update)
-    return () => media.removeEventListener('change', update)
-  }, [])
-  return reduced
-}
-function supportsWebGL() {
-  try {
-    const canvas = document.createElement('canvas')
-    return Boolean(canvas.getContext('webgl2') || canvas.getContext('webgl'))
-  } catch { return false }
-}
 
 function Logo() {
   return <Link to="/" aria-label="Digital Creators - Trang chủ" className="logo">
@@ -91,15 +73,19 @@ function Intro({code, title, desc}: {code: string; title: string; desc: string})
   return <div className="intro"><Eyebrow>{code}</Eyebrow><h2>{title}</h2><p>{desc}</p></div>
 }
 function Scene() {
-  const reduced = useReducedMotion()
-  const [webgl] = useState(supportsWebGL)
-  return <div className="scene-wrap">
+  const previewColors = ['#b4a0ff','#77dfd5','#f6adcf','#8fcaff','#e8c1ff','#f7bc99','#e3d678','#91eac3','#f1a6d3']
+  return <div className="scene-wrap teaser-scene" aria-label="Minh họa Rubik sáng tạo, xem hiệu ứng giải khi cuộn trang">
     <div className="scene-blob scene-blob-a"/><div className="scene-blob scene-blob-b"/>
-    {webgl ? <Suspense fallback={<div className="scene-placeholder"><Shapes size={70}/></div>}><CreativeScene reducedMotion={reduced}/></Suspense> : <div className="scene-placeholder"><Shapes size={96}/><span>MAKE • CREATE • EXPLORE</span></div>}
+    <div className="teaser-poster">
+      <div className="teaser-windowbar"><span/><span/><span/><small>digital-creators / lab-01</small></div>
+      <div className="teaser-preview-header"><span>CREATIVE LOGIC</span><strong>THINK<br/>BEYOND.</strong></div>
+      <div className="teaser-cube-grid">{previewColors.map((color,i)=><i key={i} style={{backgroundColor:color}} />)}</div>
+      <div className="teaser-preview-footer"><span>03 × 03</span><span>PLAY WITH IDEAS <Sparkles size={14}/></span></div>
+    </div>
     <span className="scene-chip chip-one"><Palette size={17}/> DESIGN</span>
     <span className="scene-chip chip-two"><Code2 size={17}/> CODE</span>
     <span className="scene-chip chip-three"><Sparkles size={17}/> CREATE</span>
-    <span className="scene-help"><MousePointer2 size={15}/> Một chút chuyển động, thêm nhiều cảm hứng</span>
+    <span className="scene-help"><MousePointer2 size={15}/> Cuộn để Rubik tự xoay và tìm lời giải</span>
   </div>
 }
 function FieldCards() {
