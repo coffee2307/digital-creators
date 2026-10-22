@@ -8,6 +8,7 @@ import {
 import { focusAreas, interests, plannedActivities } from './data/site'
 import ScrollKoiStory from './components/ScrollKoiStory'
 import CreativeLab from './components/CreativeLab'
+import ScrollReveals from './components/ScrollReveals'
 
 const CreativeScene = lazy(() => import('./components/CreativeScene'))
 const fieldIcons: LucideIcon[] = [Palette, Film, Globe2, Code2, WandSparkles]
@@ -206,7 +207,7 @@ function Register() {
 function NotFound() {return <div className="not-found wrap"><span>404 / LOST IN SPACE</span><h1>Trang này chưa tồn tại.</h1><p>Đôi khi một đường dẫn cũng cần một chút sáng tạo.</p><Link className="btn btn-ink" to="/">Trở về trang chủ <ArrowRight size={18}/></Link></div>}
 
 function AppShell() {
-  return <><Header/><main id="main" tabIndex={-1}><Routes><Route path="/" element={<Home/>}/><Route path="/gioi-thieu" element={<About/>}/><Route path="/hoat-dong" element={<Activities/>}/><Route path="/dang-ky" element={<Register/>}/><Route path="*" element={<NotFound/>}/></Routes></main><Footer/></>
+  return <><ScrollReveals/><Header/><main id="main" tabIndex={-1}><Routes><Route path="/" element={<Home/>}/><Route path="/gioi-thieu" element={<About/>}/><Route path="/hoat-dong" element={<Activities/>}/><Route path="/dang-ky" element={<Register/>}/><Route path="*" element={<NotFound/>}/></Routes></main><Footer/></>
 }
 export default function App() {
   return <HashRouter><button className="skip-link" onClick={() => document.getElementById('main')?.focus()}>Bỏ qua điều hướng</button><AppShell/></HashRouter>
