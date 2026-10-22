@@ -14,13 +14,14 @@ Website tiếng Việt cho CLB Sáng tạo số trong giai đoạn đề xuất 
 
 ## Phase 2 — Ba cảnh tương tác theo từng trang
 - [x] Trang chủ: Rubik 3×3 thực sự gồm cubie/sticker 3D; chuỗi xoay đảo ngược từ scramble đến solved phụ thuộc thanh cuộn.
-- [x] Trang Giới thiệu: mô phỏng vector 2.5D một tờ giấy lần lượt gấp thành hạc giấy.
-- [x] Trang Hoạt động: thành phố khối lắp ghép 3D với instancing, xuất hiện từng tầng theo cuộn.
+- [x] Trang Giới thiệu: tranh sơn dầu *The Starry Night* hiện lên theo các nét cọ điều khiển bằng cuộn trang.
+- [x] Trang Hoạt động: thành phố khối lắp ghép 3D với instancing, mái, cửa kính, công viên và các khu nhà xuất hiện từng tầng theo cuộn.
 - [x] Bỏ nền hình tròn trang trí trên hai trang Giới thiệu và Hoạt động.
 - [x] Tách tải các cảnh theo trang, giữ React + Vite + Three.js chạy trên hosting tĩnh.
 - [x] Creative Playground, reveal theo cuộn, hỗ trợ giảm chuyển động.
 - [ ] Tối ưu tốc độ tải ban đầu, kiểm thử thiết bị GPU yếu và đánh giá Lighthouse.
-- [ ] Nếu cần độ chân thực cao hơn: phát triển trình tự gấp hạc theo các khớp giấy 3D thực, thay mô phỏng 2.5D.
+- [x] Poster Hero dùng CSS 3D xoay Rubik và các badge theo chuột, tránh tải thêm WebGL.
+- [ ] Tối ưu texture, frame time khi cuộn tranh và kiểm thử trên máy thật.
 - [ ] Kiểm thử trải nghiệm cuộn bằng trackpad, chuột và điện thoại thực tế.
 
 ## Phase 3 — Nội dung và hệ thống quản trị
