@@ -24,6 +24,7 @@ const bricks:Brick[]=buildings.flatMap((building,bIndex)=>
     seed:bIndex*31+floor*11+13,rank:floor*buildings.length+bIndex,
   }))
 ).sort((a,b)=>a.rank-b.rank)
+const maxRank = Math.max(...bricks.map(brick => brick.rank), 1)
 const ease=(n:number)=>{const t=Math.max(0,Math.min(1,n));return t*t*(3-2*t)}
 const lerp=(a:number,b:number,t:number)=>a+(b-a)*t
 const studOffsets=[[-.3,-.22],[-.3,.22],[.3,-.22],[.3,.22]]
@@ -52,7 +53,7 @@ function CityModel({progressRef,reduced}:{progressRef:React.RefObject<number>;re
     const block=blockMesh.current,stud=studMesh.current
     if(!block||!stud)return
     bricks.forEach((item,i)=>{
-      const stagger=item.rank/bricks.length*.44
+      const stagger=item.rank/maxRank*.44
       const t=ease((p-.06-stagger)/.43)
       const spawnX=(positionSeed(item.seed,1))*10
       const spawnY=5+Math.abs(positionSeed(item.seed,2))*6
