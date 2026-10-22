@@ -5,6 +5,7 @@ import { Quaternion, Vector3, type Group } from 'three'
 import { ArrowDown, ArrowUpRight, Lightbulb, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useScrollScene } from '../hooks/useScrollScene'
+import SceneErrorBoundary from './SceneErrorBoundary'
 
 type Axis = 'x' | 'y' | 'z'
 type Turn = { axis: Axis; layer: number; sign: number }
@@ -123,7 +124,7 @@ export default function RubikScrollStory(){
         </div>)}
       </div>
       <div className="motion-visual rubik-visual"><div className="rubik-ambient"/><div className="rubik-halo"/>
-        <RubikCanvas progressRef={progressRef} reduced={reducedMotion}/>
+        <SceneErrorBoundary label="Rubik 3×3"><RubikCanvas progressRef={progressRef} reduced={reducedMotion}/></SceneErrorBoundary>
         <div className="visual-corner-label">27 CUBIES <span>·</span> 12 REVERSE MOVES</div>
       </div>
       <button type="button" className="motion-skip" onClick={() => sectionRef.current?.nextElementSibling?.scrollIntoView({behavior: reducedMotion ? 'auto' : 'smooth',block:'start'})}>BỎ QUA HIỆU ỨNG ↗</button>
