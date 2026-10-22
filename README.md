@@ -5,6 +5,13 @@ Website tĩnh dành cho dự án **đề xuất thành lập CLB Sáng tạo s�
 **Source:** https://github.com/coffee2307/digital-creators  
 **Địa chỉ sau khi kích hoạt GitHub Pages:** https://coffee2307.github.io/digital-creators/
 
+## Trải nghiệm tương tác
+
+- **Cuộn theo hành trình 4 chương** ngay sau Hero: linh vật cá chép tự vẽ bằng SVG vector (2.5D) chuyển vị trí, hướng bơi, tỷ lệ và nhịp vây theo thanh cuộn; không phải video hoặc hình ảnh của PeachWeb.
+- **Creative Playground:** thử màu, mô phỏng chuyển động và giao diện lập trình.
+- Reveal nhẹ theo vùng nhìn; hỗ trợ `prefers-reduced-motion` và nội dung không phụ thuộc hiệu ứng.
+- Không thêm backend hoặc dữ liệu lưu trữ. Chỉ cần GitHub Pages public repo.
+
 ## Công nghệ
 
 - Vite + React 19 + TypeScript + React Router (HashRouter).
