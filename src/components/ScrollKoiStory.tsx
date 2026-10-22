@@ -184,7 +184,7 @@ export default function ScrollKoiStory() {
     }
   }, [reduced])
 
-  return <section className={'koi-story' + (reduced ? ' koi-reduced' : '')} ref={sectionRef} aria-label="Hành trình sáng tạo cùng linh vật cá chép">
+  return <section id="hanh-trinh" className={'koi-story' + (reduced ? ' koi-reduced' : '')} ref={sectionRef} aria-label="Hành trình sáng tạo cùng linh vật cá chép">
     <div className="koi-stage" ref={stageRef}>
       <div className="koi-grain"/>
       <div className="koi-halo koi-halo-one"/><div className="koi-halo koi-halo-two"/>
