@@ -1,41 +1,50 @@
 import { useRef, type PointerEvent } from 'react'
 import { Code2, MousePointer2, Palette, Sparkles } from 'lucide-react'
 
-const faceColors = [
-  ['#b49aff','#7ae2d7','#f5b0cf','#9dc8ff','#dcb7f9','#ffbf9b','#ecd979','#8eddb9','#f0a4cf'],
-  ['#76d9f0','#9cb4f9','#8fcda9','#edb9e6','#9fd7d7','#bac0f7','#eec58f','#bd9fdb','#77d8cb'],
-  ['#e0b9f6','#9fe1d3','#f6c0aa','#eccee5','#9bd6f3','#c1afe8','#a3dbc7','#ecd99d','#e2b7f5'],
-]
-function CubeFace({ index }: { index: number }) {
-  return <div className={'hero-cube-face hero-cube-face-' + index}>
-    {faceColors[index].map((color,i)=><span key={i} className="hero-cube-sticker" style={{background:color}}/>)}
+type Side = 'front' | 'right' | 'top' | 'left' | 'back' | 'bottom'
+const palette: Record<Side, string[]> = {
+  front: ['#b7a0ff', '#77e2db', '#f4b1d0', '#95c4fd', '#dfb7f4', '#ffc19c', '#ecda78', '#8be0bb', '#eda4d2'],
+  right: ['#ffd0a9', '#f0afd4', '#b8a9ff', '#ffdc87', '#a9e7d4', '#d9c3fc', '#f2b5a3', '#c3e2a0', '#9bc9ff'],
+  top: ['#edc7f8', '#9be8df', '#ffd5b1', '#b6efdf', '#ffeb9a', '#d5c2ff', '#f5b9d7', '#a4d8ff', '#f3d1fc'],
+  left: Array(9).fill('#ccb4ed'),
+  back: Array(9).fill('#a4dbc9'),
+  bottom: Array(9).fill('#f2c6a7'),
+}
+
+function CubeFace({ side }: { side: Side }) {
+  return <div className={'hero-cube-face hero-cube-face-' + side} aria-hidden="true">
+    {palette[side].map((color, index) =>
+      <span className="hero-cube-sticker" key={index} style={{ backgroundColor: color }} />)}
   </div>
 }
+
+/** Six physically consistent sides: no disappearing or flattened right face. */
 export default function HeroRubikCard() {
-  const container = useRef<HTMLDivElement>(null)
-  const reset = () => {
-    if (!container.current) return
-    container.current.style.setProperty('--mouse-x','0')
-    container.current.style.setProperty('--mouse-y','0')
-  }
+  const stage = useRef<HTMLDivElement>(null)
   const move = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === 'touch' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const box = event.currentTarget.getBoundingClientRect()
-    const x = Math.max(-1,Math.min(1,(event.clientX-box.left)/box.width*2-1))
-    const y = Math.max(-1,Math.min(1,(event.clientY-box.top)/box.height*2-1))
-    if (!container.current) return
-    container.current.style.setProperty('--mouse-x',x.toFixed(3))
-    container.current.style.setProperty('--mouse-y',y.toFixed(3))
+    const rect = event.currentTarget.getBoundingClientRect()
+    const x = Math.max(-1, Math.min(1, (event.clientX - rect.left) / rect.width * 2 - 1))
+    const y = Math.max(-1, Math.min(1, (event.clientY - rect.top) / rect.height * 2 - 1))
+    stage.current?.style.setProperty('--mouse-x', String(x))
+    stage.current?.style.setProperty('--mouse-y', String(y))
   }
-  return <div ref={container} className="scene-wrap teaser-scene hero3d" onPointerMove={move} onPointerLeave={reset} aria-label="Thẻ không gian sáng tạo nổi 3D, có khối Rubik và các nhãn xoay theo con trỏ">
+  const reset = () => {
+    stage.current?.style.setProperty('--mouse-x', '0')
+    stage.current?.style.setProperty('--mouse-y', '0')
+  }
+
+  return <div ref={stage} className="scene-wrap teaser-scene hero3d" onPointerMove={move}
+      onPointerLeave={reset} aria-label="Rubik nổi ba chiều có thể thay đổi góc nhìn bằng chuột">
     <div className="scene-blob scene-blob-a"/><div className="scene-blob scene-blob-b"/>
     <div className="hero3d-floating-stage">
       <div className="hero3d-card">
         <div className="teaser-windowbar"><span/><span/><span/><small>digital-creators / lab-01</small></div>
         <div className="hero3d-head"><span>CREATIVE LOGIC</span><strong>THINK<br/>BEYOND.</strong></div>
         <div className="hero3d-cube-position">
-          <div className="hero3d-cube">
-            <CubeFace index={0}/><CubeFace index={1}/><CubeFace index={2}/>
+          <div className="hero3d-cube" aria-hidden="true">
+            <CubeFace side="front"/><CubeFace side="right"/><CubeFace side="top"/>
+            <CubeFace side="left"/><CubeFace side="back"/><CubeFace side="bottom"/>
           </div>
           <div className="hero3d-floor-shadow"/>
         </div>
