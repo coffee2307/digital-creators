@@ -1,0 +1,95 @@
+/* Digital Creators — Oct 2026 creative refresh: kinetic Rubik, oil painting, sculptural brick city */
+
+/* Interactive editorial poster: true browser 3D, one less WebGL canvas at load. */
+.hero3d{--mouse-x:0;--mouse-y:0;perspective:1300px;transform-style:preserve-3d}
+.hero3d-floating-stage{position:relative;z-index:2;transform-style:preserve-3d;width:min(395px,78%);height:455px;transform:translate3d(calc(var(--mouse-x)*9px),calc(var(--mouse-y)*7px),0);transition:transform .2s ease-out}
+.hero3d-card{position:absolute;inset:0;background:linear-gradient(148deg,#fffefeee,#f6f3ffec 60%,#eceef9fa);border:1px solid rgba(255,255,255,.95);border-radius:32px;padding:0 24px;box-shadow:16px 25px 0 #c9bbdf54,32px 42px 64px #9782bb36,inset 0 1px 0 #fff;transform-style:preserve-3d;transform:rotateY(calc(-11deg + var(--mouse-x)*9deg)) rotateX(calc(3deg - var(--mouse-y)*8deg)) rotateZ(5deg);transition:transform .24s cubic-bezier(.21,.8,.19,1),box-shadow .3s;overflow:visible}
+.hero3d-card:before{content:"";position:absolute;inset:15px;border:1px solid #e6def0;border-radius:24px;pointer-events:none}
+.hero3d-card .teaser-windowbar{height:50px}
+.hero3d-head{position:relative;z-index:2;display:flex;justify-content:space-between;gap:12px;align-items:start;margin-top:20px;transform:translateZ(35px)}
+.hero3d-head>span{font:800 9px Outfit,'Be Vietnam Pro',sans-serif;letter-spacing:1.65px;color:#9f94b8}
+.hero3d-head strong{font:800 31px/.95 Outfit,'Be Vietnam Pro',sans-serif;text-align:right;letter-spacing:-1.3px;color:#6c5d8b;text-shadow:0 3px 18px #bfa9e35c}
+.hero3d-cube-position{position:absolute;left:50%;top:54%;height:210px;width:220px;transform:translate3d(-50%,-50%,66px);transform-style:preserve-3d}
+.hero3d-cube{width:162px;height:162px;position:absolute;top:14px;left:29px;transform-style:preserve-3d;transform:rotateX(-23deg) rotateY(-32deg);animation:hero3d-cube-drift 14s ease-in-out infinite}
+.hero-cube-face{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:4px;background:#23233e;border:8px solid #22223e;border-radius:8px;box-shadow:inset 0 0 16px #161a32,0 0 12px #9084c550;backface-visibility:hidden}
+.hero-cube-face-0{transform:translateZ(81px)}
+.hero-cube-face-1{transform:rotateY(90deg) translateZ(81px)}
+.hero-cube-face-2{transform:rotateX(90deg) translateZ(81px)}
+.hero-cube-sticker{display:block;border-radius:4px;box-shadow:inset -5px -6px 8px #342e5e38,inset 3px 4px 8px #ffffff88,0 0 9px currentColor;border:1px solid #ffffff55}
+.hero3d-floor-shadow{position:absolute;width:160px;height:45px;background:#4f438557;border-radius:50%;filter:blur(21px);left:27px;bottom:-13px;transform:translateZ(0) rotate(-12deg)}
+.hero3d-footer{position:absolute;bottom:29px;left:25px;right:24px;display:flex;justify-content:space-between;align-items:center;gap:10px;color:#a499bb;font:800 9px Outfit,sans-serif;letter-spacing:1.15px;transform:translateZ(25px)}
+.hero3d-footer span:last-child{display:flex;align-items:center;gap:7px}
+.hero3d-glare{position:absolute;inset:0;border-radius:32px;background:linear-gradient(125deg,#ffffff70 0%,transparent 32%,#fff8 55%,transparent 67%);mix-blend-mode:screen;opacity:.20;pointer-events:none;transform:translateZ(1px)}
+.hero3d .scene-chip{animation:hero3d-badge-float 5s ease-in-out infinite;box-shadow:0 19px 38px #6b628a20;z-index:5;transition:translate .25s}
+.hero3d .chip-one{left:-3%;top:19%;animation-delay:-1s}
+.hero3d .chip-two{right:-2%;top:30%;animation-delay:-2.2s}
+.hero3d .chip-three{right:0;bottom:23%;animation-delay:-3.7s}
+.hero3d .scene-chip:hover{translate:0 -6px}
+@keyframes hero3d-cube-drift{0%,100%{transform:translateY(0) rotateX(-23deg) rotateY(-32deg)}45%{transform:translateY(-8px) rotateX(-17deg) rotateY(26deg)}75%{transform:translateY(4px) rotateX(-34deg) rotateY(-6deg)}}
+@keyframes hero3d-badge-float{0%,100%{translate:0 0}50%{translate:0 -12px}}
+
+/* Oil-on-canvas stage, warm gallery art direction, no large circular backdrops. */
+.painting-stage{background:linear-gradient(123deg,#fcfaf5 4%,#f5f1f8 54%,#ecf3f1 100%)}
+.painting-stage:before{content:'';position:absolute;inset:0 0 0 36%;background-image:linear-gradient(#d7cfd930 1px,transparent 1px),linear-gradient(90deg,#d7cfd930 1px,transparent 1px);background-size:52px 52px;mask-image:linear-gradient(90deg,transparent,#000);pointer-events:none}
+.painting-visual{width:min(56%,810px);top:11%;bottom:14%;right:1.5%;display:flex;align-items:center;justify-content:center}
+.painter-viewport{position:relative;width:100%;max-width:730px;transform:rotate(3deg);filter:drop-shadow(21px 31px 29px #6d5c7d24)}
+.painter-frame{position:relative;background:linear-gradient(135deg,#d9b58a,#f8dcb2 18%,#aa754e 40%,#f2c89a 75%,#c09467);border:14px solid #e8c69b;border-radius:5px;box-shadow:inset 0 0 0 4px #88654a,0 1px 0 5px #f6e6d0,0 30px 60px #75688929}
+.painter-canvas-wrap{position:relative;width:100%;aspect-ratio:960/768;background:#f8f4eb;overflow:visible;border:5px solid #f4ecde;box-shadow:inset 0 0 16px #47352422}
+.painter-canvas{display:block;width:100%;height:100%;object-fit:fill}
+.painter-brush{position:absolute;z-index:4;width:clamp(90px,11vw,160px);height:auto;pointer-events:none;transform:translate(-43%,-87%) rotate(-6deg);filter:drop-shadow(9px 13px 10px #30294649)}
+.painter-brush-rest{opacity:0}
+.paint-frame-badge{display:flex;align-items:center;justify-content:space-between;padding:12px 12px 0;gap:9px;font:800 9px Outfit,sans-serif;letter-spacing:1.7px;color:#674a37}
+.paint-frame-badge small{font:700 8px Outfit,sans-serif;color:#7b5e4a;letter-spacing:.9px}
+.painter-caption{position:absolute;right:-10px;bottom:-39px;font:800 8px Outfit,sans-serif;letter-spacing:1.4px;color:#94859f;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.painter-caption-dot{display:inline-block;width:8px;height:8px;background:#dfb16c;border-radius:50%;box-shadow:0 0 0 4px #f1e3d3}
+.paint-load-fallback{position:absolute;inset:0;display:grid;place-items:center;text-align:center;background:#eee7df;color:#6e5c6d;font-size:12px;padding:18px}.paint-load-fallback a{color:#55479d;text-decoration:underline}
+.painting-visual:after{content:'ART / 1889';position:absolute;top:4%;right:1%;font:800 11px Outfit,sans-serif;color:#a8a0ad;letter-spacing:2.4px;pointer-events:none}
+
+/* Toy architecture receives its own airy art direction. */
+.city-stage{background:linear-gradient(117deg,#fcfaf8,#f4f2f9 50%,#e8f2f1)}
+.city-visual{top:5%;bottom:7%;width:min(61%,900px);right:0}
+.city-stage:before{opacity:.27}
+.city-tag{color:#9183a3;font-weight:800;letter-spacing:2.1px}
+.city-tag-top{top:11%}.city-tag-bottom{bottom:11%}
+@media(max-width:1100px){
+ .hero3d-floating-stage{width:min(355px,78%);height:425px}
+ .hero3d-head strong{font-size:27px}
+ .painting-visual{width:56%;right:0}
+ .painter-frame{border-width:11px}
+}
+@media(max-width:760px){
+ .hero3d-floating-stage{width:min(315px,79%);height:355px}
+ .hero3d-card{padding:0 17px;border-radius:25px}
+ .hero3d-head{margin-top:11px}
+ .hero3d-head strong{font-size:24px}
+ .hero3d-head>span{font-size:8px}
+ .hero3d-cube-position{top:56%;transform:translate3d(-50%,-50%,48px) scale(.74)}
+ .hero3d-footer{bottom:22px;left:19px;right:19px;font-size:8px}
+ .hero3d .chip-one{left:0}.hero3d .chip-two{right:-2%}
+ .hero3d .scene-chip{animation-duration:7s}
+ .painting-visual{top:43%;bottom:12%;left:0;right:0;width:100%;padding:8px 22px}
+ .painter-viewport{transform:rotate(1.8deg)}
+ .painter-frame{border-width:8px}
+ .painter-canvas-wrap{border-width:3px}
+ .paint-frame-badge{padding:8px 3px 0;font-size:7px;letter-spacing:.8px}
+ .paint-frame-badge small{font-size:6px}
+ .painter-brush{width:96px}
+ .painter-caption{font-size:7px;right:0;bottom:-27px}
+ .painting-visual:after{top:0;right:23px;font-size:8px}
+ .city-visual{top:43%;bottom:8%;width:100%;right:0}
+ .city-tag-top{top:1%;right:5%}.city-tag-bottom{bottom:2%}
+}
+@media(max-width:420px){
+ .hero3d-floating-stage{width:min(285px,81%);height:333px}
+ .hero3d-head strong{font-size:21px}
+ .hero3d-cube-position{top:55%;transform:translate3d(-50%,-50%,43px) scale(.67)}
+ .painter-brush{width:82px}
+ .painter-frame{border-width:7px}
+}
+@media(prefers-reduced-motion:reduce){
+ .hero3d-cube,.hero3d .scene-chip{animation:none!important}
+ .hero3d-card{transform:rotateY(-9deg) rotateZ(4deg)!important;transition:none!important}
+ .hero3d-floating-stage{transform:none!important}
+ .painting-visual{position:relative;width:min(680px,100%);top:auto;right:auto;bottom:auto}
+ .painter-brush{display:none}
+}
