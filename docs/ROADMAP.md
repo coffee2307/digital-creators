@@ -12,8 +12,11 @@ Website tiếng Việt cho CLB Sáng tạo số trong giai đoạn đề xuất 
 - [x] Responsive, hạn chế chuyển động, fallback thiết bị thiếu WebGL.
 - [x] CI build và cấu hình SPA Cloudflare Pages.
 
-## Phase 2 — Immersive story
-- [ ] Cảnh 3D nhiều chương theo scroll có nhịp và điểm dừng, có thể bỏ qua.
+## Phase 2 — Immersive story (đã triển khai nền tảng 2.5D)
+- [x] Hành trình cuộn 4 chương: cá chép minh họa SVG gốc di chuyển/đổi hướng/đổi tỷ lệ theo scroll thực, không phải video chạy tự động.
+- [x] Creative Playground: đổi màu tức thì, phát/tạm dừng motion, minh họa code.
+- [x] IntersectionObserver reveal từng phần tử; người chọn giảm chuyển động vẫn đọc được đủ 4 chương.
+- [ ] Nâng từ 2.5D lên mô hình 3D GLB/GLTF chân thực hơn nếu thực sự cải thiện trải nghiệm và giữ FPS.
 - [ ] Tương tác riêng cho 5 lĩnh vực (design/video/web/code/content).
 - [ ] Điều hướng camera theo ngữ cảnh và mobile scene tối giản.
 - [ ] Asset GLB/GLTF tự tạo có texture nén, progressive loading.
