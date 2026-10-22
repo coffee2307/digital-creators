@@ -7,10 +7,12 @@ Website tĩnh dành cho dự án **đề xuất thành lập CLB Sáng tạo s�
 
 ## Trải nghiệm tương tác
 
-- **Cuộn theo hành trình 4 chương** ngay sau Hero: linh vật cá chép tự vẽ bằng SVG vector (2.5D) chuyển vị trí, hướng bơi, tỷ lệ và nhịp vây theo thanh cuộn; không phải video hoặc hình ảnh của PeachWeb.
-- **Creative Playground:** thử màu, mô phỏng chuyển động và giao diện lập trình.
-- Reveal nhẹ theo vùng nhìn; hỗ trợ `prefers-reduced-motion` và nội dung không phụ thuộc hiệu ứng.
-- Không thêm backend hoặc dữ liệu lưu trữ. Chỉ cần GitHub Pages public repo.
+- **Trang chủ — Rubik 3×3:** các mảnh Rubik 3D neon xoay theo progress cuộn, thực hiện các bước đảo ngược scramble để trở về khối đã giải.
+- **Giới thiệu — Hạc giấy:** mô phỏng gấp giấy bằng các lớp vector 2.5D và nếp gấp từng giai đoạn.
+- **Hoạt động — Thành phố khối lắp ghép:** các khối 3D xuất hiện rải rác, bay vào vị trí và xây thành phố nhiều tầng.
+- Hai trang Giới thiệu và Hoạt động không còn hình tròn trang trí lớn ở header.
+- Creative Playground vẫn có bảng phối màu và các hoạt ảnh nhỏ.
+- Các cảnh tải riêng theo trang, có chế độ `prefers-reduced-motion`; toàn bộ website tĩnh và biểu mẫu đăng ký mô phỏng, không lưu dữ liệu.
 
 ## Công nghệ
 
