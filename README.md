@@ -7,9 +7,9 @@ Website tĩnh dành cho dự án **đề xuất thành lập CLB Sáng tạo s�
 
 ## Trải nghiệm tương tác
 
-- **Trang chủ — Rubik 3×3:** các mảnh Rubik 3D neon xoay theo progress cuộn, thực hiện các bước đảo ngược scramble để trở về khối đã giải.
-- **Giới thiệu — Hạc giấy:** mô phỏng gấp giấy bằng các lớp vector 2.5D và nếp gấp từng giai đoạn.
-- **Hoạt động — Thành phố khối lắp ghép:** các khối 3D xuất hiện rải rác, bay vào vị trí và xây thành phố nhiều tầng.
+- **Trang chủ — Rubik 3×3:** cảnh Rubik 3D neon giải theo cuộn, kèm Hero Rubik CSS 3D xoay/đổi chiều sâu khi di chuyển chuột (giảm chuyển động khi cần).
+- **Giới thiệu — Oil painting:** một cây cọ tạo nét sơn dầu theo tiến trình cuộn, dần hiện nguyên tác *The Starry Night* (1889) của Vincent van Gogh. Ảnh WebP được lưu trong `public/` để hoạt động khi triển khai tĩnh; nguồn/trạng thái quyền xem `public/ART_CREDITS.md`.
+- **Hoạt động — Thành phố khối lắp ghép:** gạch 3D lắp thành phố có nhiều tầng, mái, ô cửa, quảng trường và cây xanh.
 - Hai trang Giới thiệu và Hoạt động không còn hình tròn trang trí lớn ở header.
 - Creative Playground vẫn có bảng phối màu và các hoạt ảnh nhỏ.
 - Các cảnh tải riêng theo trang, có chế độ `prefers-reduced-motion`; toàn bộ website tĩnh và biểu mẫu đăng ký mô phỏng, không lưu dữ liệu.
