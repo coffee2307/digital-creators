@@ -6,9 +6,9 @@ import {
   Shapes, Sparkles, UsersRound, WandSparkles, X, type LucideIcon,
 } from 'lucide-react'
 import { focusAreas, interests, plannedActivities } from './data/site'
-import RubikScrollStory from './components/RubikScrollStory'
-import OrigamiAboutVisual from './components/OrigamiAboutVisual'
-import LegoActivitiesVisual from './components/LegoActivitiesVisual'
+const RubikScrollStory = lazy(() => import('./components/RubikScrollStory'))
+const OrigamiAboutVisual = lazy(() => import('./components/OrigamiAboutVisual'))
+const LegoActivitiesVisual = lazy(() => import('./components/LegoActivitiesVisual'))
 import CreativeLab from './components/CreativeLab'
 import ScrollReveals from './components/ScrollReveals'
 
@@ -138,7 +138,7 @@ function Home() {
       <button type="button" className="hero-scroll-story" onClick={() => document.getElementById('hanh-trinh')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })}>CUỘN ĐỂ KHÁM PHÁ KHÔNG GIAN CHUYỂN ĐỘNG <ArrowDownRight size={18}/></button>
     </div><Scene/></section>
     <div className="marquee" aria-label="Sáng tạo, kết nối, phát triển"><div className="marquee-rail">{[0,1].map(i=><span key={i}>DESIGN <b>✳</b> CODE <b>✳</b> CREATE <b>✳</b> EXPLORE <b>✳</b> CONNECT <b>✳</b> </span>)}</div></div>
-    <RubikScrollStory/>
+    <Suspense fallback={<div className="visual-scene-loading">Đang tải không gian Rubik…</div>}><RubikScrollStory/></Suspense>
     <section className="section wrap"><div className="section-heading"><Intro code="01 / KHÁM PHÁ" title="Có rất nhiều cách để sáng tạo." desc="Không cần giỏi sẵn từ đầu. Chỉ cần tò mò, dám thử và sẵn sàng cùng nhau học hỏi."/><span className="side-note">FIND YOUR THING ↗</span></div><FieldCards/></section>
     <CreativeLab/>
     <section className="section story"><div className="wrap story-grid"><div className="story-art"><div className="orbit orbit-outer"/><div className="orbit orbit-inner"/><div className="idea-center"><Lightbulb size={78} strokeWidth={1.2}/></div><span className="idea-pill idea-top">IDEAS <Sparkles size={15}/></span><span className="idea-pill idea-bottom">MAKE IT REAL <ArrowUpRight size={15}/></span></div>
@@ -158,7 +158,7 @@ function PageHeader({number, eyebrow, title, desc, clean = false}: {number: stri
 function About() {
   return <>
     <PageHeader number="01" eyebrow="GIỚI THIỆU" title="Một nơi dành cho những tâm trí tò mò." desc="Nơi những ý tưởng được lắng nghe, những kỹ năng được khám phá và những kết nối mới có cơ hội hình thành." clean/>
-    <OrigamiAboutVisual/>
+    <Suspense fallback={<div className="visual-scene-loading">Đang chuẩn bị hạc giấy…</div>}><OrigamiAboutVisual/></Suspense>
     <section className="wrap section about-content"><div className="about-main"><Eyebrow>VÌ SAO CÓ DIGITAL CREATORS?</Eyebrow><h2>Vì sáng tạo không nên chỉ nằm trong trí tưởng tượng.</h2><p>Trong thời đại công nghệ số, các kỹ năng như thiết kế đồ họa, chỉnh sửa video, lập trình và sáng tạo nội dung ngày càng hữu ích đối với học sinh. CLB được đề xuất nhằm tạo môi trường để các bạn tiếp cận những kỹ năng này, phát huy ý tưởng và học hỏi lẫn nhau.</p><div className="about-highlight"><Sparkles size={32}/><span>Học từ trải nghiệm. Lớn lên cùng ý tưởng.</span></div></div><div className="about-aside"><div className="about-sticker"><span>✳</span><strong>THINK.<br/>CREATE.<br/>SHARE.</strong></div></div></section>
     <section className="section wrap"><Intro code="NHỮNG ĐIỀU HƯỚNG TỚI" title="Mục tiêu của chúng mình." desc="Bốn định hướng để mỗi thành viên có cơ hội học hỏi và phát triển theo cách của riêng mình."/><div className="goal-grid">{[
       {icon: Palette, title:'Phát triển kỹ năng số', desc:'Sử dụng các công cụ thiết kế và công nghệ để tạo sản phẩm thực tế.'},
@@ -172,7 +172,7 @@ function About() {
 function Activities() {
   return <>
     <PageHeader number="02" eyebrow="HOẠT ĐỘNG" title="Học bằng cách làm. Lớn lên qua từng ý tưởng." desc="Từ thử nghiệm công cụ đến những dự án sáng tạo nhóm — hãy cùng hình dung những gì chúng mình có thể tạo ra." clean/>
-    <LegoActivitiesVisual/>
+    <Suspense fallback={<div className="visual-scene-loading">Đang dựng thành phố sáng tạo…</div>}><LegoActivitiesVisual/></Suspense>
     <section className="section wrap"><div className="notice"><Sparkles size={20}/><p><strong>Hoạt động dự kiến.</strong> Các nội dung dưới đây là kế hoạch đề xuất, chưa phải hoạt động đã được CLB tổ chức.</p></div><ActivityCards/></section>
     <section className="section wrap"><div className="process"><Intro code="HÀNH TRÌNH Ý TƯỞNG" title="Từ tò mò đến thành phẩm." desc="Một hành trình thực hành đơn giản có thể được áp dụng trong các hoạt động nhóm."/><div className="steps">{[
       ['01','Khám phá','Tìm ý tưởng và học công cụ mới.'],
