@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom'
 import { useScrollScene } from '../hooks/useScrollScene'
 import SceneErrorBoundary from './SceneErrorBoundary'
 
-const colors=['#b4a4e8','#a4d7c6','#f4bca9','#9fbfe5','#d3bfe9','#efcf9b']
+const colors=['#9484d3','#8bbfad','#e5a28f','#85a9d7','#bca8d8','#e6bf83']
 const ease=(n:number)=>{const t=Math.max(0,Math.min(1,n));return t*t*(3-2*t)}
 const lerp=(a:number,b:number,t:number)=>a+(b-a)*t
 const random=(a:number,b:number)=>{const v=Math.sin(a*91.17+b*17.91)*43758.5453;return v-Math.floor(v)}
@@ -63,7 +63,7 @@ function Village({progressRef,reduced}:{progressRef:React.RefObject<number>;redu
       const color=new Color(brick.color)
       block.setColorAt(i,color)
       for(let j=0;j<4;j++)stud.setColorAt(i*4+j,color)
-      for(let j=0;j<2;j++)win.setColorAt(i*2+j,new Color(j===0?'#fff0d7':'#e5f9f6'))
+      for(let j=0;j<2;j++)win.setColorAt(i*2+j,new Color(j===0?'#fff3ce':'#7fa4c3'))
     })
     for(const mesh of [block,stud,win])if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true
   },[])
@@ -91,7 +91,7 @@ function Village({progressRef,reduced}:{progressRef:React.RefObject<number>;redu
         s.setMatrixAt(i*4+j,decoration.matrix)
       })
       for(let j=0;j<2;j++){
-        relative.set(j===0?-.32:.32,.02,.49).applyMatrix4(tmp.matrix)
+        relative.set(j===0?-.32:.32,.02,.553).applyMatrix4(tmp.matrix)
         decoration.position.copy(relative)
         decoration.rotation.copy(tmp.rotation)
         decoration.scale.copy(tmp.scale)
@@ -129,13 +129,13 @@ function Village({progressRef,reduced}:{progressRef:React.RefObject<number>;redu
     </mesh>)}
     {[-2.3,0,2.2].flatMap((z,zi)=>[-5.15,5.15].map((x,xi)=><Tree key={zi+'-'+xi} x={x} z={z} size={zi===1?.9:.7}/>))}
     <instancedMesh ref={blocks} args={[undefined,undefined,bricks.length]} frustumCulled={false}>
-      <boxGeometry args={[1.24,.48,1.05]}/><meshStandardMaterial color="#ffffff" roughness={.4} metalness={.04}/>
+      <boxGeometry args={[1.24,.48,1.05]}/><meshStandardMaterial color="#ffffff" roughness={.61} metalness={.025}/>
     </instancedMesh>
     <instancedMesh ref={studs} args={[undefined,undefined,bricks.length*4]} frustumCulled={false}>
       <cylinderGeometry args={[.14,.14,.095,12]}/><meshStandardMaterial color="#ffffff" roughness={.46}/>
     </instancedMesh>
     <instancedMesh ref={windows} args={[undefined,undefined,bricks.length*2]} frustumCulled={false}>
-      <boxGeometry args={[.23,.2,.042]}/><meshStandardMaterial color="#ffffff" emissive="#e6d9bb" emissiveIntensity={.12} roughness={.24}/>
+      <boxGeometry args={[.28,.25,.045]}/><meshBasicMaterial color="#ffffff"/>
     </instancedMesh>
     <group ref={roofGroup}>
       {houses.map((house,i)=><Roof key={i} x={house.x} z={house.z} n={house.n} variant={i}/>)}
@@ -155,10 +155,10 @@ function Village({progressRef,reduced}:{progressRef:React.RefObject<number>;redu
 }
 function CityCanvas({progressRef,reduced}:{progressRef:React.RefObject<number>;reduced:boolean}){
   return <Canvas camera={{position:[12.8,10.4,15],fov:34}} dpr={[1,1.6]} gl={{alpha:true,antialias:true,powerPreference:'low-power'}}>
-    <ambientLight intensity={1.9}/>
-    <hemisphereLight args={['#ffffff','#c9b7e7',1]}/>
-    <directionalLight position={[3,10,7]} intensity={2.5} color="#fff7ed"/>
-    <pointLight position={[-5,5,-5]} intensity={12} color="#d8c7f8" distance={19}/>
+    <ambientLight intensity={.7}/>
+    <hemisphereLight args={['#ffffff','#b09cc4',.55]}/>
+    <directionalLight position={[3,10,7]} intensity={1.5} color="#fff7ed"/>
+    <pointLight position={[-5,5,-5]} intensity={5} color="#d8c7f8" distance={19}/>
     <Village progressRef={progressRef} reduced={reduced}/>
   </Canvas>
 }
