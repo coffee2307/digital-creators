@@ -56,3 +56,17 @@
 @media(max-width:420px){.koi-content{top:24%;}.koi-chapter h2{font-size:32px}.koi-stage{background:radial-gradient(ellipse at 57% 62%,#d8e9e4 0%,transparent 80%),linear-gradient(125deg,#f8f4ef,#f0e7f4)}.koi-masthead{font-size:7px}.koi-swimmer{width:100vw}.koi-decoration-code{bottom:19%;right:4%;}.lab-color-picker button{width:25px;height:25px}}
 @media(prefers-reduced-motion:reduce){.koi-story{height:auto;}.koi-stage{position:relative;height:auto;min-height:0;padding:105px 20px 85px}.koi-masthead{top:27px}.koi-swimmer{opacity:.14;left:75%;top:280px;width:min(550px,100%);transform:translate(-50%,-50%)}.koi-content{position:relative;top:auto;left:auto;transform:none;width:min(1020px,100%);height:auto;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:45px 38px}.koi-chapter{position:relative;opacity:1;visibility:visible;transform:none;pointer-events:auto;min-height:200px}.koi-chapter h2{font-size:35px}.koi-chapter p{font-size:11px}.koi-bottom-rail,.koi-scroll-hint{display:none}.koi-masthead span:last-child{display:none}.lab-orbital-shape,.lab-motion-shape,.lab-motion-bubble,.lab-motion-diamond,.lab-timeline-track i,.code-caret{animation:none!important}}
 @media(prefers-reduced-motion:reduce) and (max-width:760px){.koi-content{grid-template-columns:1fr;gap:55px}.koi-stage{padding:110px 20px 70px}.koi-chapter{min-height:0}.koi-chapter h2{font-size:32px}.koi-swimmer{top:50%;opacity:.11}}
+
+/* Keep the fish away from chapter copy as it swims left on desktop. */
+@media(min-width:761px){
+  .koi-stage[data-chapter="2"] .koi-content{
+    left:auto;
+    right:max(54px,calc((100vw - 1250px)/2));
+    text-align:right;
+  }
+  .koi-stage[data-chapter="2"] .koi-chapter{align-items:flex-end}
+  .koi-stage[data-chapter="2"] .koi-chapter p{
+    padding-right:0;
+    background:linear-gradient(270deg,#f1f3f0c9,transparent);
+  }
+}
