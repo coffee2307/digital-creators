@@ -32,7 +32,7 @@ function tipAt(p: number) {
   return { x: Math.max(18, Math.min(W - 20, x)), y: m.y + m.drift * Math.sin(t * Math.PI) }
 }
 
-function paintFrame(ctx: CanvasRenderingContext2D, mask: HTMLCanvasElement, image: HTMLImageElement | null, amount: number) {
+function paintFrame(ctx: CanvasRenderingContext2D, mask: HTMLCanvasElement, painted: HTMLCanvasElement, image: HTMLImageElement | null, amount: number) {
   const p = clamp(amount)
   ctx.clearRect(0, 0, W, H)
   ctx.fillStyle = '#f8f4eb'
@@ -70,11 +70,10 @@ function paintFrame(ctx: CanvasRenderingContext2D, mask: HTMLCanvasElement, imag
     mctx.stroke()
   }
   mctx.globalAlpha = 1
-  const painted = document.createElement('canvas')
-  painted.width = W
-  painted.height = H
   const pctx = painted.getContext('2d')
   if (!pctx) return
+  pctx.globalCompositeOperation = 'source-over'
+  pctx.clearRect(0, 0, W, H)
   pctx.drawImage(image, 0, 0, W, H)
   pctx.globalCompositeOperation = 'destination-in'
   pctx.drawImage(mask, 0, 0)
@@ -84,6 +83,13 @@ function paintFrame(ctx: CanvasRenderingContext2D, mask: HTMLCanvasElement, imag
 function PaintingCanvas({ progress, reducedMotion }: { progress: number; reducedMotion: boolean }) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const mask = useMemo(() => {
+    if (typeof document === 'undefined') return null
+    const element = document.createElement('canvas')
+    element.width = W
+    element.height = H
+    return element
+  }, [])
+  const painted = useMemo(() => {
     if (typeof document === 'undefined') return null
     const element = document.createElement('canvas')
     element.width = W
@@ -105,9 +111,9 @@ function PaintingCanvas({ progress, reducedMotion }: { progress: number; reduced
 
   useEffect(() => {
     const ctx = canvas.current?.getContext('2d', { alpha: false })
-    if (!ctx || !mask) return
-    paintFrame(ctx, mask, image, amount)
-  }, [image, amount, mask])
+    if (!ctx || !mask || !painted) return
+    paintFrame(ctx, mask, painted, image, amount)
+  }, [image, amount, mask, painted])
   const tip = tipAt(amount)
   return <div className="painter-viewport">
     <div className="painter-frame">
