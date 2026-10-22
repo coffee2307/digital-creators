@@ -114,24 +114,24 @@ function PaintingCanvas({ progress, reducedMotion }: { progress: number; reduced
       <div className="painter-canvas-wrap">
         <canvas ref={canvas} width={W} height={H} className="painter-canvas" aria-label="Bức Đêm đầy sao của Vincent van Gogh hiện dần qua nét cọ theo cuộn trang" role="img" />
         {failed && <div className="paint-load-fallback">Không thể tải ảnh tác phẩm. <a href="https://commons.wikimedia.org/wiki/File:VanGogh-starry_night.jpg">Xem ảnh gốc</a></div>}
+        <svg className={'painter-brush' + (reducedMotion ? ' painter-brush-rest' : '')} style={{left: (tip.x / W * 100) + '%',top: (tip.y / H * 100) + '%'}} viewBox="0 0 170 225" role="img" aria-label="Cây cọ vẽ màu dầu">
+          <defs>
+            <linearGradient id="brush-handle-wood" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#cd9867"/><stop offset=".42" stopColor="#eac6a2"/><stop offset="1" stopColor="#86563e"/></linearGradient>
+            <linearGradient id="brush-ferrule" x1="0" y1="0" x2="1" y2=".4"><stop stopColor="#fdf6ed"/><stop offset=".4" stopColor="#9a9db1"/><stop offset=".73" stopColor="#e2e3ed"/><stop offset="1" stopColor="#757d98"/></linearGradient>
+          </defs>
+          <g transform="rotate(-38 79 163)">
+            <path d="M69 6Q81 -3 91 7L87 157L74 157Z" fill="url(#brush-handle-wood)" stroke="#a57755" strokeWidth="1.4"/>
+            <path d="M74 38L87 37" stroke="#fff4dd" strokeOpacity=".5" strokeWidth="2"/>
+            <path d="M70 150L90 150L92 181Q81 187 68 181Z" fill="url(#brush-ferrule)" stroke="#b0acb3" strokeWidth="1.8"/>
+            <path d="M69 163L91 163M70 170L91 170" stroke="#fff" strokeOpacity=".47"/>
+            <path d="M68 180Q66 195 73 207Q77 216 80 222Q93 206 94 181Z" fill="#e8d8b7" stroke="#998c82" strokeWidth="1.3"/>
+            <path d="M74 203Q77 219 80 222Q87 209 90 202Q84 209 74 203Z" fill="#3155a2"/>
+            <path d="M75 183L77 208M81 185L82 216M88 185L85 207" stroke="#a29788" strokeWidth="1" opacity=".5"/>
+          </g>
+        </svg>
       </div>
       <div className="paint-frame-badge"><span>THE STARRY NIGHT</span><small>VINCENT VAN GOGH — 1889</small></div>
     </div>
-    <svg className={'painter-brush' + (reducedMotion ? ' painter-brush-rest' : '')} style={{left: (tip.x / W * 100) + '%',top: (tip.y / H * 100) + '%'}} viewBox="0 0 170 225" role="img" aria-label="Cây cọ vẽ màu dầu">
-      <defs>
-        <linearGradient id="brush-handle-wood" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#cd9867"/><stop offset=".42" stopColor="#eac6a2"/><stop offset="1" stopColor="#86563e"/></linearGradient>
-        <linearGradient id="brush-ferrule" x1="0" y1="0" x2="1" y2=".4"><stop stopColor="#fdf6ed"/><stop offset=".4" stopColor="#9a9db1"/><stop offset=".73" stopColor="#e2e3ed"/><stop offset="1" stopColor="#757d98"/></linearGradient>
-      </defs>
-      <g transform="rotate(-38 79 163)">
-        <path d="M69 6Q81 -3 91 7L87 157L74 157Z" fill="url(#brush-handle-wood)" stroke="#a57755" strokeWidth="1.4"/>
-        <path d="M74 38L87 37" stroke="#fff4dd" strokeOpacity=".5" strokeWidth="2"/>
-        <path d="M70 150L90 150L92 181Q81 187 68 181Z" fill="url(#brush-ferrule)" stroke="#b0acb3" strokeWidth="1.8"/>
-        <path d="M69 163L91 163M70 170L91 170" stroke="#fff" strokeOpacity=".47"/>
-        <path d="M68 180Q66 195 73 207Q77 216 80 222Q93 206 94 181Z" fill="#e8d8b7" stroke="#998c82" strokeWidth="1.3"/>
-        <path d="M74 203Q77 219 80 222Q87 209 90 202Q84 209 74 203Z" fill="#3155a2"/>
-        <path d="M75 183L77 208M81 185L82 216M88 185L85 207" stroke="#a29788" strokeWidth="1" opacity=".5"/>
-      </g>
-    </svg>
     <div className="painter-caption"><span className="painter-caption-dot"/> OIL ON CANVAS / LIVE BRUSHSTROKES</div>
   </div>
 }
