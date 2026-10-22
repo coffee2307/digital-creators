@@ -70,3 +70,11 @@
     background:linear-gradient(270deg,#f1f3f0c9,transparent);
   }
 }
+
+/* Editorial motion language: only reveal items as they enter the viewport. */
+@media(prefers-reduced-motion:no-preference){
+ .dc-reveal{opacity:0;transform:translate3d(0,30px,0);transition:opacity .75s cubic-bezier(.2,.75,.2,1),transform .75s cubic-bezier(.2,.75,.2,1);transition-delay:var(--dc-reveal-delay,0ms)}
+ .dc-reveal.dc-in-view{opacity:1;transform:translate3d(0,0,0)}
+ .lab-card.dc-reveal.dc-in-view:hover,.field-card.dc-reveal.dc-in-view:hover{transform:translateY(-7px)}
+ .activity.dc-reveal.dc-in-view:hover{transform:translateY(-5px)}
+}
