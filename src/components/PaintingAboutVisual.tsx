@@ -114,7 +114,7 @@ function PaintingCanvas({ progress, reducedMotion }: { progress: number; reduced
       <div className="painter-canvas-wrap">
         <canvas ref={canvas} width={W} height={H} className="painter-canvas" aria-label="Bức Đêm đầy sao của Vincent van Gogh hiện dần qua nét cọ theo cuộn trang" role="img" />
         {failed && <div className="paint-load-fallback">Không thể tải ảnh tác phẩm. <a href="https://commons.wikimedia.org/wiki/File:VanGogh-starry_night.jpg">Xem ảnh gốc</a></div>}
-        <svg className={'painter-brush' + (reducedMotion ? ' painter-brush-rest' : '')} style={{left: (tip.x / W * 100) + '%',top: (tip.y / H * 100) + '%'}} viewBox="0 0 170 225" role="img" aria-label="Cây cọ vẽ màu dầu">
+        <svg className={'painter-brush' + (reducedMotion ? ' painter-brush-rest' : '')} style={{left: (tip.x / W * 100) + '%', top: (tip.y / H * 100) + '%', opacity: reducedMotion ? 0 : 1-ease((progress-.84)/.15)}} viewBox="0 0 170 225" role="img" aria-label="Cây cọ vẽ màu dầu">
           <defs>
             <linearGradient id="brush-handle-wood" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#cd9867"/><stop offset=".42" stopColor="#eac6a2"/><stop offset="1" stopColor="#86563e"/></linearGradient>
             <linearGradient id="brush-ferrule" x1="0" y1="0" x2="1" y2=".4"><stop stopColor="#fdf6ed"/><stop offset=".4" stopColor="#9a9db1"/><stop offset=".73" stopColor="#e2e3ed"/><stop offset="1" stopColor="#757d98"/></linearGradient>
