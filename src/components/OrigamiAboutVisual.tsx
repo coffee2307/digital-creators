@@ -86,6 +86,7 @@ export default function OrigamiAboutVisual(){
         <OrigamiArt progress={reducedMotion?1:progress}/>
         <div className="paper-measurement paper-measurement-bottom">CREATIVITY TAKES SHAPE ↗</div>
       </div>
+      <button type="button" className="motion-skip" onClick={() => sectionRef.current?.nextElementSibling?.scrollIntoView({behavior: reducedMotion ? 'auto' : 'smooth',block:'start'})}>BỎ QUA HIỆU ỨNG ↗</button>
       <div className="motion-footer"><span>PAPER → POSSIBILITIES</span><div className="motion-progress"><i style={{width:(progress*100)+'%'}}/></div><strong>0{stage+1} / 03</strong></div>
     </div>
   </section>
