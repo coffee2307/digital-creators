@@ -10,7 +10,10 @@ export default function ThemeToggle() {
     aria-label={dark ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
     title={dark ? 'Chế độ sáng' : 'Chế độ tối cyberpunk'}
     aria-pressed={dark}
-    onClick={() => setSiteTheme(dark ? 'light' : 'dark')}
+    onClick={(event) => {
+      const rect = event.currentTarget.getBoundingClientRect()
+      setSiteTheme(dark ? 'light' : 'dark', { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
+    }}
   >
     <span className="dc-theme-track" aria-hidden="true">
       <span className="dc-theme-thumb">{dark ? <Sun size={15}/> : <Moon size={15}/>}</span>
