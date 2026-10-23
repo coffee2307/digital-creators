@@ -54,6 +54,24 @@ for (const [label, type] of browsers) {
     })
     await page.waitForTimeout(1900)
     const pixels = await coloredPixelCount(page)
+    const mobileDebug = await page.evaluate(() => {
+      const section = document.querySelector('.painting-story')
+      const element = document.querySelector('.painter-mobile-canvas')
+      const fallback = document.querySelector('.painter-mobile-fallback')
+      const brush = document.querySelector('.painter-mobile-brush')
+      return {
+        scrollY, innerWidth, innerHeight, hidden: document.hidden,
+        sectionTop: section?.getBoundingClientRect().top,
+        sectionHeight: section?.offsetHeight,
+        stickyHeight: section?.querySelector('.motion-sticky')?.offsetHeight,
+        fallback: !!fallback,
+        brushOpacity: brush?.style.opacity,
+        brushTransform: brush?.style.transform,
+        canvasWidth: element?.width,
+        canvasHeight: element?.height,
+      }
+    })
+    console.log(label + ': diagnostics', JSON.stringify(mobileDebug))
     assert(pixels > 45, label + ': image failed to paint any visible pixels (' + pixels + ')')
 
     const brush = await page.locator('.painter-mobile-brush').evaluate(element => ({
