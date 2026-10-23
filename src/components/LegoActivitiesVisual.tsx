@@ -6,6 +6,7 @@ import { ArrowDown, ArrowUpRight, Blocks, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useScrollScene } from '../hooks/useScrollScene'
 import SceneErrorBoundary from './SceneErrorBoundary'
+import { useThemeMode } from '../hooks/useThemeMode'
 
 const colors=['#9484d3','#8bbfad','#e5a28f','#85a9d7','#bca8d8','#e6bf83']
 const ease=(n:number)=>{const t=Math.max(0,Math.min(1,n));return t*t*(3-2*t)}
@@ -26,17 +27,17 @@ const bricks:Brick[]=houses.flatMap((building,bi)=>Array.from({length:building.n
 }))).sort((a,b)=>a.rank-b.rank)
 const maxRank=Math.max(...bricks.map(b=>b.rank))
 const studOffset=[[-.32,-.24],[-.32,.24],[.32,-.24],[.32,.24]]
-function Tree({x,z,size=1}:{x:number;z:number;size?:number}) {
+function Tree({x,z,size=1,dark}:{x:number;z:number;size?:number;dark:boolean}) {
   return <group position={[x,-.05,z]} scale={size}>
     <mesh position={[0,.3,0]}><cylinderGeometry args={[.055,.085,.62,9]}/><meshStandardMaterial color="#b8a69d"/></mesh>
-    <mesh position={[0,.8,0]}><icosahedronGeometry args={[.37,1]}/><meshStandardMaterial color="#9acbb8" roughness={.8}/></mesh>
+    <mesh position={[0,.8,0]}><icosahedronGeometry args={[.37,1]}/><meshStandardMaterial color={dark ? "#268e81" : "#9acbb8"} emissive={dark ? "#18cbb1" : "#000000"} emissiveIntensity={dark ? .45 : 0} roughness={.8}/></mesh>
     <mesh position={[.15,.9,.13]}><icosahedronGeometry args={[.21,1]}/><meshStandardMaterial color="#bce4ce"/></mesh>
   </group>
 }
-function Roof({x,z,n,variant}:{x:number;z:number;n:number;variant:number}){
+function Roof({x,z,n,variant,dark}:{x:number;z:number;n:number;variant:number;dark:boolean}){
   const y=n*.51+.19
   return <group position={[x,y,z]}>
-    <RoundedBox args={[1.33,.23,1.05]} radius={.08} smoothness={3} position={[0,0,0]}><meshStandardMaterial color={variant%2?'#eee2f5':'#e5f1ee'} roughness={.43}/></RoundedBox>
+    <RoundedBox args={[1.33,.23,1.05]} radius={.08} smoothness={3} position={[0,0,0]}><meshStandardMaterial color={dark ? (variant % 2 ? '#55458f' : '#357a8c') : (variant%2?'#eee2f5':'#e5f1ee')} emissive={dark ? (variant % 2 ? '#ad65ff' : '#45efff') : '#000000'} emissiveIntensity={dark ? .65 : 0} roughness={.43}/></RoundedBox>
     {variant===2?<group>
       <mesh position={[0,.30,0]}><cylinderGeometry args={[.32,.39,.42,16]}/><meshStandardMaterial color="#f7d2bb" roughness={.35}/></mesh>
       <mesh position={[0,.65,0]}><sphereGeometry args={[.28,18,12,0,Math.PI*2,0,Math.PI/2]}/><meshStandardMaterial color="#f4cbaa"/></mesh>
@@ -47,11 +48,12 @@ function Roof({x,z,n,variant}:{x:number;z:number;n:number;variant:number}){
       :<mesh position={[0,.23,0]}><boxGeometry args={[.78,.22,.69]}/><meshStandardMaterial color="#e3d4ed"/></mesh>}
   </group>
 }
-function Village({progressRef,reduced}:{progressRef:React.RefObject<number>;reduced:boolean}){
+function Village({progressRef,reduced,dark}:{progressRef:React.RefObject<number>;reduced:boolean;dark:boolean}){
   const blocks=useRef<InstancedMesh>(null)
   const studs=useRef<InstancedMesh>(null)
   const windows=useRef<InstancedMesh>(null)
   const roofGroup=useRef<Group>(null)
+  const neonGroup=useRef<Group>(null)
   const root=useRef<Group>(null)
   const tmp=useMemo(()=>new Object3D(),[])
   const decoration=useMemo(()=>new Object3D(),[])
@@ -60,13 +62,13 @@ function Village({progressRef,reduced}:{progressRef:React.RefObject<number>;redu
     const block=blocks.current,stud=studs.current,win=windows.current
     if(!block||!stud||!win)return
     bricks.forEach((brick,i)=>{
-      const color=new Color(brick.color)
+      const color=new Color(dark ? ['#5f50cd','#289dad','#ec7aaf','#367fdf','#a56ddf','#c99659'][bricks[i].rank%6] : brick.color)
       block.setColorAt(i,color)
       for(let j=0;j<4;j++)stud.setColorAt(i*4+j,color)
-      for(let j=0;j<2;j++)win.setColorAt(i*2+j,new Color(j===0?'#fff3ce':'#7fa4c3'))
+      for(let j=0;j<2;j++)win.setColorAt(i*2+j,new Color(dark ? (j===0?'#71fcff':'#ff8dce') : (j===0?'#fff3ce':'#7fa4c3')))
     })
     for(const mesh of [block,stud,win])if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true
-  },[])
+  },[dark])
   useFrame((state,dt)=>{
     const p=reduced?1:progressRef.current
     const b=blocks.current,s=studs.current,w=windows.current
@@ -104,6 +106,11 @@ function Village({progressRef,reduced}:{progressRef:React.RefObject<number>;redu
       const settled=ease((p-.56)/.28)
       roofGroup.current.scale.set(1,Math.max(.001,settled),1)
     }
+    if(neonGroup.current){
+      const intensity = ease((p - .52)/.28)
+      neonGroup.current.visible = dark && intensity > .001
+      neonGroup.current.scale.set(1,Math.max(.001,intensity),1)
+    }
     if(root.current){
       const target=.05+ease((p-.7)/.25)*.22
       root.current.rotation.y+=(target-root.current.rotation.y)*Math.min(1,dt*4)
@@ -112,33 +119,50 @@ function Village({progressRef,reduced}:{progressRef:React.RefObject<number>;redu
   })
   return <group ref={root}>
     <RoundedBox args={[11.9,.54,7.25]} radius={.23} smoothness={3} position={[0,-.63,.12]}>
-      <meshStandardMaterial color="#f7f4f3" roughness={.76}/>
+      <meshStandardMaterial color={dark ? "#131b36" : "#f7f4f3"} roughness={.76}/>
     </RoundedBox>
     <RoundedBox args={[11.45,.1,6.85]} radius={.08} smoothness={2} position={[0,-.33,.12]}>
-      <meshStandardMaterial color="#e9e8ee" roughness={.86}/>
+      <meshStandardMaterial color={dark ? "#1d2647" : "#e9e8ee"} roughness={.86}/>
     </RoundedBox>
     {/* One central promenade with a pedestrian path and pockets of grass */}
-    <mesh position={[0,-.268,.11]}><boxGeometry args={[.69,.035,6.35]}/><meshStandardMaterial color="#d9d6e2"/></mesh>
+    <mesh position={[0,-.268,.11]}><boxGeometry args={[.69,.035,6.35]}/><meshStandardMaterial color={dark ? "#243c60" : "#d9d6e2"}/></mesh>
     <mesh position={[0,-.246,.1]}><boxGeometry args={[.055,.015,6]}/><meshBasicMaterial color="#fbfaf7"/></mesh>
-    <mesh position={[0,-.246,.16]}><boxGeometry args={[11,.025,.54]}/><meshStandardMaterial color="#d7d6e1"/></mesh>
+    <mesh position={[0,-.246,.16]}><boxGeometry args={[11,.025,.54]}/><meshStandardMaterial color={dark ? "#203954" : "#d7d6e1"}/></mesh>
     {[-4.75,-2.85,-.95,.95,2.85,4.75].map(x=><mesh key={x} position={[x,-.225,.16]}>
       <boxGeometry args={[.58,.022,.055]}/><meshBasicMaterial color="#fff8e8"/>
     </mesh>)}
     {[-5.25,5.24].map(x=><mesh key={x} position={[x,-.252,.12]}>
-      <boxGeometry args={[.58,.055,6.25]}/><meshStandardMaterial color="#c7dfd0"/>
+      <boxGeometry args={[.58,.055,6.25]}/><meshStandardMaterial color={dark ? "#143d42" : "#c7dfd0"}/>
     </mesh>)}
-    {[-2.3,0,2.2].flatMap((z,zi)=>[-5.15,5.15].map((x,xi)=><Tree key={zi+'-'+xi} x={x} z={z} size={zi===1?.9:.7}/>))}
+    {[-2.3,0,2.2].flatMap((z,zi)=>[-5.15,5.15].map((x,xi)=><Tree key={zi+'-'+xi} x={x} z={z} size={zi===1?.9:.7} dark={dark}/>))}
     <instancedMesh ref={blocks} args={[undefined,undefined,bricks.length]} frustumCulled={false}>
-      <boxGeometry args={[1.24,.48,1.05]}/><meshStandardMaterial color="#ffffff" roughness={.61} metalness={.025}/>
+      <boxGeometry args={[1.24,.48,1.05]}/><meshStandardMaterial color="#ffffff" emissive={dark ? "#37478e" : "#000000"} emissiveIntensity={dark ? .68 : 0} roughness={.61} metalness={.025}/>
     </instancedMesh>
     <instancedMesh ref={studs} args={[undefined,undefined,bricks.length*4]} frustumCulled={false}>
-      <cylinderGeometry args={[.14,.14,.095,12]}/><meshStandardMaterial color="#ffffff" roughness={.46}/>
+      <cylinderGeometry args={[.14,.14,.095,12]}/><meshStandardMaterial color="#ffffff" emissive={dark ? "#244876" : "#000000"} emissiveIntensity={dark ? .45 : 0} roughness={.46}/>
     </instancedMesh>
     <instancedMesh ref={windows} args={[undefined,undefined,bricks.length*2]} frustumCulled={false}>
       <boxGeometry args={[.28,.25,.045]}/><meshBasicMaterial color="#ffffff"/>
     </instancedMesh>
+    {/* Architectural edge lighting is attached to the buildings, not a screen-space glow filter. */}
+    <group ref={neonGroup} visible={false}>
+      {houses.map((house,i)=><group key={'neon-'+i}>
+        <mesh position={[house.x-.63,house.n*.255+.08,house.z+.526]}>
+          <boxGeometry args={[.035,house.n*.51,.035]}/>
+          <meshBasicMaterial color={i%2 ? '#ff72d7' : '#5df5ff'} toneMapped={false}/>
+        </mesh>
+        <mesh position={[house.x+.63,house.n*.255+.08,house.z+.526]}>
+          <boxGeometry args={[.035,house.n*.51,.035]}/>
+          <meshBasicMaterial color={i%2 ? '#ff72d7' : '#5df5ff'} toneMapped={false}/>
+        </mesh>
+        <mesh position={[house.x,house.n*.51+.02,house.z+.53]}>
+          <boxGeometry args={[1.27,.052,.055]}/>
+          <meshBasicMaterial color={i%2 ? '#ff89e3' : '#83ffff'} toneMapped={false}/>
+        </mesh>
+      </group>)}
+    </group>
     <group ref={roofGroup}>
-      {houses.map((house,i)=><Roof key={i} x={house.x} z={house.z} n={house.n} variant={i}/>)}
+      {houses.map((house,i)=><Roof key={i} x={house.x} z={house.z} n={house.n} variant={i} dark={dark}/>)}
     </group>
     <group position={[0,.1,3.2]}>
       <RoundedBox args={[1.9,.32,.79]} radius={.07} smoothness={3}>
@@ -153,13 +177,14 @@ function Village({progressRef,reduced}:{progressRef:React.RefObject<number>;redu
     </group>)}
   </group>
 }
-function CityCanvas({progressRef,reduced}:{progressRef:React.RefObject<number>;reduced:boolean}){
+function CityCanvas({progressRef,reduced,dark}:{progressRef:React.RefObject<number>;reduced:boolean;dark:boolean}){
   return <Canvas camera={{position:[12.8,10.4,15],fov:typeof window !== 'undefined' && window.innerWidth<=760 ? 40 : 34}} dpr={[1,1.6]} gl={{alpha:true,antialias:true,powerPreference:'low-power'}}>
-    <ambientLight intensity={.7}/>
-    <hemisphereLight args={['#ffffff','#b09cc4',.55]}/>
-    <directionalLight position={[3,10,7]} intensity={1.5} color="#fff7ed"/>
-    <pointLight position={[-5,5,-5]} intensity={5} color="#d8c7f8" distance={19}/>
-    <Village progressRef={progressRef} reduced={reduced}/>
+    <ambientLight intensity={dark ? .34 : .7}/>
+    <hemisphereLight args={[dark ? '#5893b4' : '#ffffff','#b09cc4',dark ? .37 : .55]}/>
+    <directionalLight position={[3,10,7]} intensity={dark ? 1.1 : 1.5} color={dark ? "#8bbfff" : "#fff7ed"}/>
+    <pointLight position={[-5,5,-5]} intensity={dark ? 18 : 5} color={dark ? "#60f3ff" : "#d8c7f8"} distance={19}/>
+    {dark && <pointLight position={[5,5,6]} intensity={13} color="#f97acb" distance={19}/>}
+    <Village progressRef={progressRef} reduced={reduced} dark={dark}/>
   </Canvas>
 }
 const steps=[
@@ -169,6 +194,7 @@ const steps=[
 ]
 export default function LegoActivitiesVisual(){
   const {sectionRef,progress,progressRef,reducedMotion}=useScrollScene()
+  const dark = useThemeMode() === 'dark'
   const phase=progress<.3?0:progress<.8?1:2
   return <section ref={sectionRef} className={'motion-chapter city-story'+(reducedMotion?' motion-reduced':'')} aria-label="Thành phố khối lắp ghép 3D hình thành theo cuộn">
     <div className="motion-sticky city-stage">
@@ -180,7 +206,7 @@ export default function LegoActivitiesVisual(){
         </div>)}
       </div>
       <div className="motion-visual city-visual"><div className="city-tag city-tag-top">A CITY BUILT BY CREATORS</div>
-        <SceneErrorBoundary label="Thành phố sáng tạo"><CityCanvas progressRef={progressRef} reduced={reducedMotion}/></SceneErrorBoundary>
+        <SceneErrorBoundary label="Thành phố sáng tạo"><CityCanvas progressRef={progressRef} reduced={reducedMotion} dark={dark}/></SceneErrorBoundary>
         <div className="city-tag city-tag-bottom">DESIGN • CODE • CREATE <span>✳</span></div>
       </div>
       <button type="button" className="motion-skip" onClick={()=>sectionRef.current?.nextElementSibling?.scrollIntoView({behavior:reducedMotion?'auto':'smooth',block:'start'})}>BỎ QUA HIỆU ỨNG ↗</button>
