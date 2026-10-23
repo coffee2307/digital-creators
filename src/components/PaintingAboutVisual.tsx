@@ -259,7 +259,7 @@ function PaintingCanvas({ progress, reducedMotion }: { progress: number; reduced
 
     const animate = (time: number) => {
       frame.current = 0
-      const dt = last.current ? Math.min(48, Math.max(1, time - last.current)) : 16
+      const dt = last.current ? Math.min(180, Math.max(1, time - last.current)) : 16
       last.current = time
 
       // A physical pace instead of jumping instantly to the scroll position:
@@ -272,7 +272,7 @@ function PaintingCanvas({ progress, reducedMotion }: { progress: number; reduced
       if (Math.abs(target.current - current.current) < .00035) current.current = target.current
 
       // Limit heavy paint compositing to ~25 fps on phones / ~33 fps on desktop.
-      const budget = window.innerWidth <= 760 ? 42 : 30
+      const budget = window.innerWidth <= 760 ? 72 : 56
       const needsPaint = Math.abs(current.current - lastDrawn.current) > .00005
       if (imageLoaded.current && needsPaint && (time - lastPaint.current >= budget || current.current === target.current)) {
         renderPainting(canvasRef.current!, surfaces.mask, surfaces.composite, surfaces.art, pigment.current, current.current, surfaces.boundary)
