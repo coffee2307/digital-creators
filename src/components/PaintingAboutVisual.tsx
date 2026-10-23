@@ -222,6 +222,8 @@ function PaintingCanvas({ progress, reducedMotion }: { progress: number; reduced
   const target = useRef(0)
   const frame = useRef(0)
   const last = useRef(0)
+  const lastPaint = useRef(0)
+  const brushPosition = useRef<{x:number;y:number}|null>(null)
   const [failed, setFailed] = useState(false)
   const [ready, setReady] = useState(false)
 
@@ -256,27 +258,49 @@ function PaintingCanvas({ progress, reducedMotion }: { progress: number; reduced
 
     const animate = (time: number) => {
       frame.current = 0
-      const dt = last.current ? Math.min(48, time - last.current) : 16
+      const dt = last.current ? Math.min(48, Math.max(1, time - last.current)) : 16
       last.current = time
-      // Frame-rate-independent easing: scroll stays reversible without jitter.
-      const factor = reducedMotion ? 1 : 1 - Math.exp(-dt / 66)
-      current.current += (target.current - current.current) * factor
-      if (Math.abs(target.current - current.current) < .0007) current.current = target.current
-      if (imageLoaded.current) {
+
+      // A physical pace instead of jumping instantly to the scroll position:
+      // a full painting needs roughly 8 seconds even after one fast wheel flick.
+      const delta = target.current - current.current
+      const ease = reducedMotion ? 1 : 1 - Math.exp(-dt / 240)
+      const maxStep = reducedMotion ? 1 : (dt / 1000) * .125
+      const advance = Math.sign(delta) * Math.min(Math.abs(delta), Math.max(Math.abs(delta) * ease, .00002), maxStep)
+      current.current += advance
+      if (Math.abs(target.current - current.current) < .00035) current.current = target.current
+
+      // Limit heavy paint compositing to ~25 fps on phones / ~33 fps on desktop.
+      const budget = window.innerWidth <= 760 ? 42 : 30
+      if (imageLoaded.current && (time - lastPaint.current >= budget || current.current === target.current)) {
         renderPainting(canvasRef.current!, surfaces.mask, surfaces.composite, surfaces.art, pigment.current, current.current, surfaces.boundary)
+        lastPaint.current = time
       }
+
       const visual = canvasRef.current?.closest<HTMLElement>('.painter-viewport')
       visual?.style.setProperty('--paint-reveal', String(current.current))
       const tip = strokeTip(current.current)
+      const old = brushPosition.current ?? {x:tip.x,y:tip.y}
+      const dx = tip.x - old.x
+      const dy = tip.y - old.y
+      const distance = Math.hypot(dx, dy)
+      const follow = reducedMotion ? 1 : 1 - Math.exp(-dt / 175)
+      const travel = Math.min(distance * follow, reducedMotion ? distance : dt * .43)
+      const ratio = distance < .001 ? 1 : travel / distance
+      const next = {x:old.x+dx*ratio,y:old.y+dy*ratio}
+      brushPosition.current = next
       const brush = brushRef.current
       if (brush) {
-        brush.style.left = (tip.x / W * 100) + '%'
-        brush.style.top = (tip.y / H * 100) + '%'
+        brush.style.left = (next.x / W * 100) + '%'
+        brush.style.top = (next.y / H * 100) + '%'
         brush.style.setProperty('--brush-tilt', (Math.sin(tip.angle * Math.PI / 180) * 6 - 8).toFixed(2) + 'deg')
-        brush.style.opacity = String(reducedMotion ? 0 : clamp(Math.min(current.current * 30, (1 - current.current) * 9)))
+        brush.style.opacity = String(reducedMotion ? 0 : clamp(Math.min(current.current * 28, (1 - current.current) * 8)))
       }
-      if (current.current !== target.current) frame.current = requestAnimationFrame(animate)
-      else last.current = 0
+      if (current.current !== target.current || Math.hypot(tip.x-next.x,tip.y-next.y)>1) {
+        frame.current = requestAnimationFrame(animate)
+      } else {
+        last.current = 0
+      }
     }
     frame.current = requestAnimationFrame(animate)
     return () => { cancelAnimationFrame(frame.current); frame.current = 0; last.current = 0 }
