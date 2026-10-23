@@ -1,0 +1,85 @@
+/* Lightweight dedicated painter for phones and compact tablets.
+   Keep CSS filters off the 2D canvas to avoid iOS offscreen GPU allocation. */
+@media (max-width:760px) {
+  .painting-story .painting-visual {
+    touch-action:pan-y;
+    pointer-events:none;
+  }
+  .painter-mobile-viewport {
+    box-sizing:border-box;
+    margin:0;
+    overflow:visible;
+    filter:none;
+    padding:0 20px 28px;
+    max-width:100%;
+  }
+  .painter-mobile-viewport .painter-surface {
+    position:relative;
+    width:100%;
+    aspect-ratio:5/4;
+    overflow:visible;
+    isolation:isolate;
+  }
+  .painter-mobile-viewport .painter-mobile-canvas {
+    display:block;
+    position:relative;
+    width:100%;
+    height:100%;
+    aspect-ratio:5/4;
+    object-fit:contain;
+    filter:none!important;
+    -webkit-mask-image:none!important;
+    mask-image:none!important;
+    box-shadow:none;
+  }
+  .painter-mobile-viewport .painter-aura {
+    inset:-8%;
+    filter:blur(13px)!important;
+    opacity:.1;
+    will-change:opacity;
+  }
+  .painter-mobile-viewport .painter-mobile-brush {
+    position:absolute;
+    z-index:5;
+    left:0;
+    top:0;
+    width:48px;
+    height:auto;
+    max-width:none;
+    opacity:0;
+    transform-origin:47% 97%;
+    will-change:transform,opacity;
+    pointer-events:none;
+    transition:none!important;
+    filter:drop-shadow(2px 4px 3px #12172e52);
+  }
+  :root[data-theme="dark"] .painter-mobile-viewport .painter-mobile-brush {
+    filter:drop-shadow(0 0 6px #f2c36f60) drop-shadow(3px 4px 5px #0008);
+  }
+  .painter-mobile-fallback {
+    position:absolute;
+    z-index:4;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    border-radius:23% 25% 21% 27% / 19% 21% 22% 20%;
+  }
+  .painter-mobile-viewport .painter-caption {
+    left:20px;
+    right:15px;
+    bottom:3px;
+    font-size:7px;
+    line-height:1.4;
+    letter-spacing:.5px;
+  }
+}
+@media (max-width:420px) {
+  .painter-mobile-viewport {padding:0 17px 27px}
+  .painter-mobile-viewport .painter-caption {left:17px}
+  .painter-mobile-viewport .painter-mobile-brush {width:42px}
+}
+@media (prefers-reduced-motion:reduce) {
+  .painter-mobile-viewport .painter-mobile-brush {display:none!important}
+  .painter-mobile-viewport .painter-aura {will-change:auto}
+}
