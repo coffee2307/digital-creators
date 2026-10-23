@@ -148,6 +148,7 @@ export default function MobilePaintingCanvas({ progress, reducedMotion }: Props)
     mask.height = H
     const edge = edgeMask()
     let raf = 0
+    let fallbackTimer = 0
     let previous = 0
     let lastDrawn = -1
     let lastPaint = 0
@@ -162,8 +163,9 @@ export default function MobilePaintingCanvas({ progress, reducedMotion }: Props)
 
     const frame = (time: number) => {
       raf = 0
+      if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = 0 }
       if (!alive || document.hidden) return
-      const dt = previous ? Math.min(80, Math.max(1, time - previous)) : 16
+      const dt = previous ? Math.min(550, Math.max(1, time - previous)) : 16
       previous = time
       const target = targetRef.current
       const remaining = target - drawnRef.current
@@ -188,17 +190,30 @@ export default function MobilePaintingCanvas({ progress, reducedMotion }: Props)
       }
       if (auraRef.current) auraRef.current.style.opacity = String(.08 + value * .8)
       if (Math.abs(target - value) > .001 || Math.hypot(brushX - x, brushY - y) > 2) {
-        raf = requestAnimationFrame(frame)
+        schedule()
       } else previous = 0
     }
 
-    const start = () => {
-      if (alive && !document.hidden && !raf) raf = requestAnimationFrame(frame)
+    // Mobile Safari can suppress requestAnimationFrame during momentum scrolling
+    // or in power-save mode, even while the document remains visible.
+    // A backup timer guarantees that the image continues to be painted.
+    const schedule = () => {
+      if (!alive || document.hidden || raf || fallbackTimer) return
+      raf = requestAnimationFrame(frame)
+      fallbackTimer = window.setTimeout(() => {
+        if (raf) cancelAnimationFrame(raf)
+        raf = 0
+        fallbackTimer = 0
+        frame(performance.now())
+      }, 120)
     }
+    const start = () => { schedule() }
     const visibility = () => {
       if (document.hidden) {
         cancelAnimationFrame(raf)
+        clearTimeout(fallbackTimer)
         raf = 0
+        fallbackTimer = 0
         previous = 0
       } else start()
     }
@@ -208,6 +223,7 @@ export default function MobilePaintingCanvas({ progress, reducedMotion }: Props)
     return () => {
       alive = false
       cancelAnimationFrame(raf)
+      clearTimeout(fallbackTimer)
       resizeObserver?.disconnect()
       document.removeEventListener('visibilitychange', visibility)
       restartRef.current = () => {}
