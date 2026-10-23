@@ -27,7 +27,11 @@ export function useScrollScene() {
         return
       }
       const rect = section.getBoundingClientRect()
-      const distance = Math.max(1, rect.height - window.innerHeight)
+      // svh-based sticky chapters must use their own rendered height. iOS
+      // browser bars change innerHeight while scrolling, causing jumps.
+      const sticky = section.querySelector<HTMLElement>('.motion-sticky')
+      const stickyHeight = sticky?.offsetHeight ?? window.innerHeight
+      const distance = Math.max(1, section.offsetHeight - stickyHeight)
       const value = Math.max(0, Math.min(1, -rect.top / distance))
       progressRef.current = value
       setProgress(previous => Math.abs(previous - value) >= .005 ? value : previous)
