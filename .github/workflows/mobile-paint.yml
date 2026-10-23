@@ -1,0 +1,47 @@
+name: Mobile painting browser QA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/components/PaintingAboutVisual.tsx'
+      - 'src/components/MobilePaintingCanvas.tsx'
+      - 'src/hooks/useScrollScene.ts'
+      - 'src/mobile-painting.css'
+      - 'scripts/mobile-paint-smoke.mjs'
+      - '.github/workflows/mobile-paint.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-paint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install application
+        run: npm ci --no-audit --no-fund
+      - name: Install test-only browsers
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium webkit
+      - name: Build site
+        run: npm run build
+      - name: Start preview
+        run: |
+          (npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/digital-creators-preview.log 2>&1 &)
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4173/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/digital-creators-preview.log
+          exit 1
+      - name: Check portrait mobile and reduced motion
+        run: node scripts/mobile-paint-smoke.mjs
