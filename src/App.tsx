@@ -12,6 +12,7 @@ const LegoActivitiesVisual = lazy(() => import('./components/LegoActivitiesVisua
 import CreativeLab from './components/CreativeLab'
 import ScrollReveals from './components/ScrollReveals'
 import HeroRubikCard from './components/HeroRubikCard'
+import ThemeToggle from './components/ThemeToggle'
 
 const fieldIcons: LucideIcon[] = [Palette, Film, Globe2, Code2, WandSparkles]
 const menu = [
@@ -43,6 +44,7 @@ function Header() {
         {menu.map(item => <NavLink key={item.path} to={item.path} end={item.path === '/'} className={({isActive}) => isActive ? 'active' : ''}>{item.label}</NavLink>)}
       </nav>
       <div className="nav-actions">
+        <ThemeToggle/>
         <Link className="btn btn-ink header-join" to="/dang-ky">Tham gia CLB <ArrowUpRight size={17}/></Link>
         <button className="menu-toggle" aria-label={opened ? 'Đóng menu' : 'Mở menu'} aria-controls="mobile-navigation" aria-expanded={opened} onClick={() => setOpened(v => !v)}>{opened ? <X size={24}/> : <Menu size={24}/>}</button>
       </div>
