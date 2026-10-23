@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowDown, ArrowUpRight, Brush, Paintbrush, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useScrollScene } from '../hooks/useScrollScene'
+import MobilePaintingCanvas from './MobilePaintingCanvas'
 
 const W = 960
 const H = 768
@@ -341,6 +342,15 @@ const chapters = [
 ]
 export default function PaintingAboutVisual() {
   const { sectionRef, progress, reducedMotion } = useScrollScene()
+  const [mobile, setMobile] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches
+  )
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 760px)')
+    const update = () => setMobile(query.matches)
+    query.addEventListener('change', update)
+    return () => query.removeEventListener('change', update)
+  }, [])
   const step = progress < .28 ? 0 : progress < .72 ? 1 : 2
   return <section ref={sectionRef} className={'motion-chapter painting-story' + (reducedMotion ? ' motion-reduced' : '')} aria-label="Cọ sơn dầu vẽ trực tiếp trên nền theo cuộn trang">
     <div className="motion-sticky painting-stage">
@@ -352,7 +362,9 @@ export default function PaintingAboutVisual() {
           {i===2 && <Link to="/dang-ky" className="motion-cta" tabIndex={reducedMotion || step===i ? 0 : -1}>Khám phá cùng CLB <ArrowUpRight size={17}/></Link>}
         </div>)}
       </div>
-      <div className="motion-visual painting-visual"><PaintingCanvas progress={progress} reducedMotion={reducedMotion}/></div>
+      <div className="motion-visual painting-visual">
+        {mobile ? <MobilePaintingCanvas progress={progress} reducedMotion={reducedMotion}/> : <PaintingCanvas progress={progress} reducedMotion={reducedMotion}/>}
+      </div>
       <button type="button" className="motion-skip" onClick={() => sectionRef.current?.nextElementSibling?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block:'start' })}>BỎ QUA HIỆU ỨNG ↗</button>
       <div className="motion-footer"><span>IMAGINE / PAINT / CREATE</span><div className="motion-progress"><i style={{ width: progress*100+'%' }}/></div><strong>0{step+1} / 03</strong></div>
     </div>
