@@ -84,7 +84,40 @@ for (const [label, type] of browsers) {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
     assert(overflow <= 2, label + ': page overflows mobile viewport by ' + overflow + 'px')
     assert(errors.length === 0, label + ': JavaScript errors: ' + JSON.stringify(errors))
-    console.log(label + ': PASS', JSON.stringify({ pixels, dimensions, overflow, brushOpacity: brush.opacity }))
+    const frozen = await page.locator('.painter-viewport').getAttribute('data-paint-progress')
+    const brushLeft = await page.locator('.painter-mobile-brush').evaluate(e => e.style.left)
+    await page.waitForTimeout(550)
+    const frozenAfter = await page.locator('.painter-viewport').getAttribute('data-paint-progress')
+    const pixelsAfter = await coloredPixelCount(page)
+    const brushLeftAfter = await page.locator('.painter-mobile-brush').evaluate(e => e.style.left)
+    assert(frozen === frozenAfter && pixels === pixelsAfter && brushLeft === brushLeftAfter,
+      label + ': painting continued moving after scroll stopped')
+
+    const scrollToPainting = async (amount) => {
+      await page.evaluate(amount => {
+        const section = document.querySelector('.painting-story')
+        const sticky = section.querySelector('.motion-sticky')
+        const distance = Math.max(1, section.offsetHeight - sticky.offsetHeight)
+        const raw = .015 + amount * .945
+        window.scrollTo({ top: window.scrollY + section.getBoundingClientRect().top + distance * raw, behavior: 'instant' })
+      }, amount)
+      await page.waitForTimeout(160)
+    }
+    await scrollToPainting(.23)
+    const pixelsBack = await coloredPixelCount(page)
+    assert(pixelsBack < pixels * .75,
+      label + ': painting did not reverse when scrolling upward (' + pixelsBack + ' vs ' + pixels + ')')
+    await scrollToPainting(.012)
+    const forwardLeft = parseFloat(await page.locator('.painter-mobile-brush').evaluate(e => e.style.left))
+    await scrollToPainting(.038)
+    const forwardRight = parseFloat(await page.locator('.painter-mobile-brush').evaluate(e => e.style.left))
+    assert(forwardRight > forwardLeft, label + ': top row should paint left to right')
+    await scrollToPainting(.070)
+    const backwardRight = parseFloat(await page.locator('.painter-mobile-brush').evaluate(e => e.style.left))
+    await scrollToPainting(.091)
+    const backwardLeft = parseFloat(await page.locator('.painter-mobile-brush').evaluate(e => e.style.left))
+    assert(backwardLeft < backwardRight, label + ': next row should paint right to left')
+    console.log(label + ': PASS', JSON.stringify({ pixels, pixelsBack, dimensions, overflow, brushOpacity: brush.opacity }))
 
     const reduced = await browser.newPage({
       viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, reducedMotion: 'reduce',
