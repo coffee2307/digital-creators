@@ -212,3 +212,9 @@
   .painter-caption{left:24px}
   .painter-brush{display:none}
 }
+
+/* Organic silhouette: fading, uneven oil-paint edges instead of a squared canvas. */
+.painter-canvas{
+  -webkit-mask-image:radial-gradient(ellipse 74% 78% at 49% 47%,#000 58%,#000e 72%,#0009 82%,transparent 99%);
+  mask-image:radial-gradient(ellipse 74% 78% at 49% 47%,#000 58%,#000e 72%,#0009 82%,transparent 99%);
+}
