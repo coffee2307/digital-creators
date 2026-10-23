@@ -151,3 +151,99 @@
   .creative-lab-section *::before,
   .creative-lab-section *::after{animation-duration:0.01ms!important}
 }
+
+/* Dark-mode contrast audit: audience banner, idea journey and form selections.
+   Target the real component classes, not hypothetical wrapper names. */
+:root[data-theme="dark"] .audience{
+  background:linear-gradient(120deg,#17353c 0%,#162b3e 49%,#252347 100%);
+  border:1px solid #406b80;
+  box-shadow:inset 0 0 42px #55f5ff0b,0 15px 38px #0005;
+}
+:root[data-theme="dark"] .audience h2{color:#f4f8ff;text-shadow:none}
+:root[data-theme="dark"] .audience p,
+:root[data-theme="dark"] .audience p strong{color:#d1e2ed}
+:root[data-theme="dark"] .audience .eyebrow{color:#9ff5ff}
+:root[data-theme="dark"] .audience-visual{
+  background:#121d3b;
+  color:#8becff;
+  box-shadow:18px 19px 0 #285269,0 0 25px #59ebff21;
+}
+:root[data-theme="dark"] .audience-visual svg{filter:drop-shadow(0 0 12px #71eaff76)}
+:root[data-theme="dark"] .audience-visual span{color:#c4d7ed}
+:root[data-theme="dark"] .process{
+  background:linear-gradient(145deg,#121d35 0%,#1b203c 100%);
+  border:1px solid #314568;
+  box-shadow:inset 0 0 42px #52c8fc08;
+}
+:root[data-theme="dark"] .process h2,
+:root[data-theme="dark"] .process .intro h2{color:#f1f6ff}
+:root[data-theme="dark"] .process .intro p{color:#b6c9e1}
+:root[data-theme="dark"] .step{
+  background:linear-gradient(155deg,#1b2b47,#181e39);
+  border:1px solid #365773;
+  box-shadow:0 10px 24px #02091540;
+}
+:root[data-theme="dark"] .step h3{color:#eaf7ff}
+:root[data-theme="dark"] .step>span{color:#a7a4ff}
+:root[data-theme="dark"] .step>svg{color:#70e8ff}
+:root[data-theme="dark"] .step p{color:#bac9dd}
+:root[data-theme="dark"] .step:hover{
+  border-color:#62eaff;
+  box-shadow:0 14px 30px #0109147d,0 0 17px #6af0ff19;
+}
+:root[data-theme="dark"] .choice{
+  color:#d7e8f7!important;
+  background:#16233b;
+  border-color:#3a516d;
+}
+:root[data-theme="dark"] .choice:hover{
+  background:#1b304e;border-color:#6cdfff;
+}
+:root[data-theme="dark"] .choice.checked{
+  color:#eefcff!important;
+  background:#21375b;
+  border-color:#79e9ff;
+  box-shadow:inset 0 0 13px #5bf0ff19;
+}
+:root[data-theme="dark"] .checkbox-indicator{
+  background:#0e1a30;border-color:#628aa7;
+}
+:root[data-theme="dark"] .choice.checked .checkbox-indicator{
+  background:#5fe5f5;border-color:#5fe5f5;color:#0a1c30;
+}
+:root[data-theme="dark"] .choice.checked .checkbox-indicator svg{color:#08192b}
+:root[data-theme="dark"] .form-disclaimer,
+:root[data-theme="dark"] .privacy-note{
+  background:#15263b;color:#bcd4e4;border:1px dashed #3b6884;
+}
+:root[data-theme="dark"] .privacy-note p{color:#bfd6e2}
+:root[data-theme="dark"] .register-art{
+  background:linear-gradient(125deg,#202046,#154050);
+  color:#8ff1ff;border:1px solid #3c607e;
+}
+:root[data-theme="dark"] .register-art span,
+:root[data-theme="dark"] .register-art strong{color:#d6ddff}
+:root[data-theme="dark"] .register-art::after{color:#ff86cc}
+:root[data-theme="dark"] .form-success h3{color:#f3f8ff}
+:root[data-theme="dark"] .form-success p{color:#bfd1e4}
+:root[data-theme="dark"] .success-icon{background:#183a41;color:#86ffdc}
+:root[data-theme="dark"] .about-sticker{
+  background:linear-gradient(145deg,#1e304c,#20213f);
+  box-shadow:17px 20px 0 #2e3354,0 0 18px #72cfff17;
+}
+:root[data-theme="dark"] .about-sticker strong{color:#c5a4ff}
+:root[data-theme="dark"] .about-sticker span{color:#7be8e2}
+:root[data-theme="dark"] .about-highlight{
+  background:#192641;
+  color:#d2e3fa;
+  border-left-color:#8b9aff;
+}
+:root[data-theme="dark"] .about-highlight svg{color:#b5a0ff}
+:root[data-theme="dark"] .skip-link:focus-visible{
+  background:#15304a;color:#e6f9ff;
+}
+@media(prefers-reduced-motion:no-preference){
+  .audience,.audience-visual,.process,.step,.choice,.form-disclaimer,.register-art,.about-sticker,.about-highlight{
+    transition:background-color .36s ease,color .36s ease,border-color .36s ease,box-shadow .36s ease;
+  }
+}
