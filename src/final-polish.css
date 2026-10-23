@@ -1,0 +1,153 @@
+/* Final visual refinement — consistent night interface, artwork lighting,
+   safe responsive canvas sizing and native iris theme transitions. */
+::view-transition-old(root),
+::view-transition-new(root){
+  animation:none;
+  mix-blend-mode:normal;
+}
+::view-transition-old(root){z-index:1}
+::view-transition-new(root){z-index:2}
+@media (prefers-reduced-motion:no-preference){
+  body, .site-header, .creative-lab-section, .lab-card, .lab-heading h2,
+  .lab-card-top, .lab-card-bottom, .lab-card-bottom span, .page-header,
+  .motion-sticky, .field-card, .activity, .goal, .register-card, .footer{
+    transition-property:background-color,color,border-color,box-shadow;
+    transition-duration:420ms;
+    transition-timing-function:cubic-bezier(.22,.82,.18,1);
+  }
+}
+
+/* Creative Playground: this section has a separate background, so it needs
+   explicit dark tokens instead of inheriting the card-only dark palette. */
+:root[data-theme="dark"] .creative-lab-section{
+  color:#e8eeff;
+  background:
+    radial-gradient(ellipse 50% 85% at 14% 7%,#2b1c536e 0%,transparent 73%),
+    radial-gradient(ellipse 45% 75% at 90% 77%,#0b415058 0%,transparent 75%),
+    linear-gradient(145deg,#0a1022 0%,#101529 58%,#101c31 100%);
+}
+:root[data-theme="dark"] .creative-lab-section::before{
+  color:#5a55a9;opacity:.30;text-shadow:0 0 25px #806cff8c;
+}
+:root[data-theme="dark"] .lab-eyebrow,
+:root[data-theme="dark"] .lab-card-top{color:#add7fa}
+:root[data-theme="dark"] .lab-eyebrow svg,
+:root[data-theme="dark"] .lab-card-top svg{color:#70f5ff}
+:root[data-theme="dark"] .lab-heading h2{color:#f3f5ff}
+:root[data-theme="dark"] .lab-heading h2 em{
+  color:#8bedff;text-shadow:0 0 23px #42dfff57;
+}
+:root[data-theme="dark"] .lab-heading>p,
+:root[data-theme="dark"] .lab-card-bottom span{color:#aebbd7}
+:root[data-theme="dark"] .lab-card{
+  background:linear-gradient(155deg,#121a30,#141c36);
+  border-color:#2e486c;
+  box-shadow:0 20px 42px #01071385,0 0 22px #3ce8ff14;
+}
+:root[data-theme="dark"] .lab-card:hover{
+  border-color:#69e9ffc4;
+  box-shadow:0 24px 52px #010815aa,0 0 24px #64f0ff36;
+}
+:root[data-theme="dark"] .lab-card-bottom strong{color:#eef3ff}
+:root[data-theme="dark"] .lab-card-bottom .lab-mini-icon{
+  color:#7ff0ff;background:#263d5e;box-shadow:0 0 12px #59edff45;
+}
+:root[data-theme="dark"] .lab-design-screen{
+  background:#20213c;border-color:#4d5487;
+}
+:root[data-theme="dark"] .lab-windowbar{background:#202946;border-color:#34466e}
+:root[data-theme="dark"] .lab-windowbar small{color:#afc9e5}
+:root[data-theme="dark"] .lab-canvas{
+  background:radial-gradient(circle at 50% 48%,#263d70 0%,#1d2444 73%);
+}
+:root[data-theme="dark"] .lab-orbital-shape{
+  filter:saturate(1.45) drop-shadow(0 0 19px #c078ff99);
+}
+:root[data-theme="dark"] .lab-stamp,
+:root[data-theme="dark"] .lab-ruler{color:#bccef0}
+:root[data-theme="dark"] .lab-color-picker button{border-color:#212b46;outline-color:#647e9d}
+:root[data-theme="dark"] .lab-color-picker button.chosen{outline-color:#90ebff}
+:root[data-theme="dark"] .lab-motion-screen{
+  background:radial-gradient(circle at 46% 45%,#333e72,#17243d 90%);
+}
+:root[data-theme="dark"] .lab-motion-screen::before{opacity:.12}
+:root[data-theme="dark"] .lab-motion-shape{
+  filter:saturate(1.4) drop-shadow(0 0 22px #ff78db72);
+}
+:root[data-theme="dark"] .lab-motion-overlay{
+  color:#ffffff;text-shadow:0 0 20px #9e62ffbf;
+}
+:root[data-theme="dark"] .lab-play{background:#14263e;color:#80e9ff;border-color:#65e7ff}
+:root[data-theme="dark"] .lab-timeline-track{background:#263652}
+:root[data-theme="dark"] .lab-timeline-label{color:#b3c4e0}
+:root[data-theme="dark"] .lab-code-window{background:#0c1325;border-color:#356183;box-shadow:inset 0 0 27px #2a4d7030}
+:root[data-theme="dark"] .lab-code-header{background:#1c2844}
+:root[data-theme="dark"] .lab-code-header em{color:#cbd9f6}
+:root[data-theme="dark"] .lab-code-body code{color:#eef4ff}
+:root[data-theme="dark"] .lab-terminal{border-color:#32557c;color:#b9c9e0}
+:root[data-theme="dark"] .visual-scene-loading{background:#0e1528;color:#a2e9fa}
+
+/* Oil painting fades naturally in its own pixel alpha. Never impose a second
+   rectangular mask or clip the drop shadows at the artwork bounds. */
+.painting-visual{overflow:visible!important;width:min(61%,890px);right:1.8%;top:11%;bottom:11%}
+.painter-viewport{overflow:visible;max-width:min(100%,800px);padding:0 44px 41px;filter:none}
+.painter-surface{position:relative;overflow:visible;isolation:isolate}
+.painter-aura{
+  position:absolute;inset:-16%;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 31% 32% at 76% 29%,#ffdf8166,transparent 88%),
+    radial-gradient(ellipse 49% 44% at 41% 51%,#7dc5ff58,transparent 83%),
+    radial-gradient(ellipse 43% 47% at 62% 65%,#a16fff3c,transparent 86%);
+  filter:blur(24px);
+  opacity:calc(.08 + var(--paint-reveal,0)*.72);
+  transform:scale(calc(.90 + var(--paint-reveal,0)*.08));
+  transition:none;
+}
+.painter-canvas{
+  position:relative;z-index:1;
+  -webkit-mask-image:none!important;
+  mask-image:none!important;
+  background:transparent;
+  filter:drop-shadow(0 12px 23px #484c7128);
+}
+.painter-surface-grain{z-index:2;pointer-events:none;opacity:.13}
+.painter-brush{z-index:3}
+:root[data-theme="dark"] .painter-aura{
+  background:
+    radial-gradient(ellipse 29% 32% at 79% 24%,#ffd15da1 0%,transparent 85%),
+    radial-gradient(ellipse 50% 46% at 42% 45%,#00aaff78 0%,transparent 86%),
+    radial-gradient(ellipse 40% 43% at 66% 69%,#a054ff72 0%,transparent 83%);
+  filter:blur(32px);
+  opacity:calc(.08 + var(--paint-reveal,0)*.96);
+}
+:root[data-theme="dark"] .painter-canvas{
+  -webkit-mask-image:none!important;mask-image:none!important;
+  filter:drop-shadow(0 0 13px #56d7ff62) drop-shadow(0 0 23px #ffd76a42)
+  saturate(1.1) contrast(1.04);
+}
+:root[data-theme="dark"] .painter-surface-grain{opacity:.16}
+/* Prevent right-side glow clipping at small widths. Reserve a brush-tip halo. */
+@media(min-width:761px) and (max-width:1100px){
+  .painting-visual{width:53.5%;right:.5%}
+  .painter-viewport{padding:0 22px 36px}
+}
+@media(max-width:760px){
+  .painting-story .motion-copy{top:17%;transform:translateY(-13%)}
+  .painting-visual{top:43%;bottom:10%;left:0;right:0;width:100%;padding:0 15px}
+  .painter-viewport{width:min(100%,calc(43svh * 1.23));padding:0 20px 27px}
+  .painter-aura{inset:-10%;filter:blur(16px)}
+  :root[data-theme="dark"] .painter-aura{filter:blur(22px)}
+  .painter-caption{left:20px}
+}
+@media(max-width:420px){
+  .painting-visual{top:45%;bottom:11%}
+  .painter-viewport{width:min(100%,calc(38svh * 1.23));padding:0 18px 26px}
+  .painter-caption{left:18px}
+}
+@media(prefers-reduced-motion:reduce){
+  .painting-visual{position:relative!important;top:auto!important;bottom:auto!important;right:auto!important;left:auto!important;width:min(760px,100%)!important}
+  .painter-aura{opacity:.70!important;transform:none!important}
+  .creative-lab-section *,
+  .creative-lab-section *::before,
+  .creative-lab-section *::after{animation-duration:0.01ms!important}
+}
