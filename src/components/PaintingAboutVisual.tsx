@@ -5,29 +5,30 @@ import { useScrollScene } from '../hooks/useScrollScene'
 
 const W = 960
 const H = 768
-const ROWS = 18
-const COLS = 15
+const STROKE_COUNT = 330
 const clamp = (value: number) => Math.max(0, Math.min(1, value))
 function noise(n: number) {
   const x = Math.sin(n * 92.417 + 18.915) * 43758.5453
   return x - Math.floor(x)
 }
-type Stroke = { x: number; y: number; dx: number; bow: number; width: number; seed: number }
-const strokes: Stroke[] = Array.from({ length: ROWS * COLS }, (_, i) => {
-  const row = Math.floor(i / COLS)
-  const col = i % COLS
-  const reverse = row % 2 === 1
-  const slot = reverse ? COLS - 1 - col : col
-  // Staggered brush passes with irregular direction, angle, breadth and overlap.
-  const x = -26 + slot * 69 + (noise(i + 3) - .5) * 34
-  const y = 10 + row * 43 + (noise(i + 47) - .5) * 34
-  const length = 73 + noise(i + 91) * 71
+type Stroke = { x: number; y: number; dx: number; dy: number; bow: number; width: number; seed: number }
+
+/* Golden-angle scatter: no rows, no columns and no horizontal square-ish wiping.
+   Tangential, slightly crooked strokes expand across an asymmetric night-sky oval. */
+const strokes: Stroke[] = Array.from({ length: STROKE_COUNT }, (_, i) => {
+  const radius = Math.sqrt((i + .5) / STROKE_COUNT)
+  const angle = i * 2.3999632297 + (noise(i + 88) - .5) * .52
+  const cx = W * .51 + Math.cos(angle) * radius * (W * .49 + 8 * Math.sin(angle * 3))
+  const cy = H * .48 + Math.sin(angle) * radius * (H * .49 + 9 * Math.sin(angle * 5))
+  const direction = angle + Math.PI / 2 + (noise(i + 144) - .5) * 1.06
+  const length = 78 + noise(i + 91) * 135
+  const dx = Math.cos(direction) * length
+  const dy = Math.sin(direction) * length
   return {
-    x: Math.max(-22, Math.min(W + 12, x)),
-    y: Math.max(-12, Math.min(H + 12, y)),
-    dx: reverse ? -length : length,
-    bow: (noise(i + 138) - .5) * 39,
-    width: 48 + noise(i + 179) * 33,
+    x: cx - dx * .52, y: cy - dy * .52,
+    dx, dy,
+    bow: (noise(i + 171) - .5) * 78,
+    width: 55 + noise(i + 215) * 46,
     seed: i,
   }
 })
@@ -37,35 +38,43 @@ function strokeTip(p: number) {
   const index = Math.min(strokes.length - 1, Math.floor(scaled))
   const mark = strokes[index]
   const f = clamp(scaled - index)
-  // Lift and travel between strokes; no visible teleporting when a pass ends.
-  if (index > 0 && f < .18) {
+  if (index > 0 && f < .20) {
     const previous = strokes[index - 1]
-    const t = f / .18
+    const t = f / .20
     const glide = t * t * (3 - 2 * t)
     return {
-      x: Math.max(19, Math.min(W - 19, previous.x + previous.dx + (mark.x - previous.x - previous.dx) * glide)),
-      y: Math.max(18, Math.min(H - 18, previous.y + (mark.y - previous.y) * glide - Math.sin(t * Math.PI) * 13)),
-      angle: -8,
+      x: Math.max(15, Math.min(W - 15, previous.x + previous.dx + (mark.x - previous.x - previous.dx) * glide)),
+      y: Math.max(15, Math.min(H - 15, previous.y + previous.dy + (mark.y - previous.y - previous.dy) * glide - Math.sin(t * Math.PI) * 23)),
+      angle: -5 + (noise(mark.seed + 15) - .5) * 10,
     }
   }
-  const paintFraction = clamp((f - .18) / .82)
-  const x = mark.x + mark.dx * paintFraction
-  const y = mark.y + 2 * (1 - paintFraction) * paintFraction * mark.bow
-  return { x: Math.max(19, Math.min(W - 19, x)), y: Math.max(18, Math.min(H - 18, y)), angle: Math.atan2(mark.bow * (1 - 2 * paintFraction) * 2, mark.dx) * 180 / Math.PI }
+  const t = clamp((f - .20) / .80)
+  const bend = Math.sin(t * Math.PI) * mark.bow * .56
+  const length = Math.hypot(mark.dx, mark.dy) || 1
+  return {
+    x: Math.max(15, Math.min(W - 15, mark.x + mark.dx * t - mark.dy / length * bend)),
+    y: Math.max(15, Math.min(H - 15, mark.y + mark.dy * t + mark.dx / length * bend)),
+    angle: (noise(mark.seed + 46) - .5) * 20,
+  }
 }
 
 function drawLine(ctx: CanvasRenderingContext2D, mark: Stroke, fraction: number, offset: number, width: number) {
   const f = clamp(fraction)
-  if (f === 0) return
-  const startX = mark.x
-  const endX = mark.x + mark.dx * f
+  if (!f) return
+  const length = Math.hypot(mark.dx, mark.dy) || 1
+  const nx = -mark.dy / length
+  const ny = mark.dx / length
+  const wiggle = (noise(mark.seed + 41) - .5) * 14
+  const x = mark.x + mark.dx * f
+  const y = mark.y + mark.dy * f
   ctx.beginPath()
-  ctx.moveTo(startX, mark.y + offset)
-  ctx.quadraticCurveTo(
-    mark.x + mark.dx * f * .5,
-    mark.y + offset + mark.bow * .95,
-    endX,
-    mark.y + offset + mark.bow * 2 * f * (1 - f),
+  ctx.moveTo(mark.x + nx * offset, mark.y + ny * offset)
+  ctx.bezierCurveTo(
+    mark.x + mark.dx * f * .28 + nx * (offset + mark.bow * .51 + wiggle),
+    mark.y + mark.dy * f * .28 + ny * (offset + mark.bow * .51 + wiggle),
+    mark.x + mark.dx * f * .71 + nx * (offset + mark.bow * .79 - wiggle*.65),
+    mark.y + mark.dy * f * .71 + ny * (offset + mark.bow * .79 - wiggle*.65),
+    x + nx * offset, y + ny * offset,
   )
   ctx.lineWidth = width
   ctx.stroke()
@@ -95,7 +104,7 @@ function renderPainting(
   const visible = Math.min(strokes.length, Math.ceil(count))
   for (let i = 0; i < visible; i++) {
     const mark = strokes[i]
-    const f = clamp((count - i - .18) / .82)
+    const f = clamp((count - i - .20) / .80)
     if (f <= 0) continue
     const pressure = .87 + .13 * Math.sin(f * Math.PI)
     m.strokeStyle = '#fff'
@@ -132,13 +141,20 @@ function renderPainting(
   ctx.lineCap = 'round'
   for (let i = 0; i < visible; i++) {
     const mark = strokes[i]
-    const f = clamp((count - i - .18) / .82)
+    const f = clamp((count - i - .20) / .80)
     if (f <= 0 || i % 2 !== 0) continue
     ctx.strokeStyle = pigment[i] || 'rgba(106,142,204,.2)'
     ctx.globalAlpha = .26
     drawLine(ctx, mark, f, -mark.width * .19, 2 + noise(i + 347) * 3)
     ctx.globalAlpha = .17
     drawLine(ctx, mark, f, mark.width * .23, 1.2 + noise(i + 322) * 2.5)
+    if (i % 5 === 0) {
+      ctx.globalAlpha = .18
+      ctx.strokeStyle = pigment[i] || 'rgba(255,255,255,.3)'
+      ctx.setLineDash([2, 10, 3, 7])
+      drawLine(ctx, mark, f, mark.width * .43, 1.3 + noise(i + 72)*2.6)
+      ctx.setLineDash([])
+    }
     if (i % 7 === 0) {
       ctx.globalAlpha = .19
       ctx.setLineDash([4, 10, 1, 7])
@@ -184,7 +200,7 @@ function PaintingCanvas({ progress, reducedMotion }: { progress: number; reduced
       const pixels = context.getImageData(0, 0, W, H).data
       pigment.current = strokes.map(mark => {
         const x = Math.max(0, Math.min(W - 1, Math.round(mark.x + mark.dx * .55)))
-        const y = Math.max(0, Math.min(H - 1, Math.round(mark.y)))
+        const y = Math.max(0, Math.min(H - 1, Math.round(mark.y + mark.dy * .55)))
         const k = (y * W + x) * 4
         return 'rgb(' + pixels[k] + ',' + pixels[k + 1] + ',' + pixels[k + 2] + ')'
       })
