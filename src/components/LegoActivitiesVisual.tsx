@@ -12,12 +12,16 @@ const colors=['#9484d3','#8bbfad','#e5a28f','#85a9d7','#bca8d8','#e6bf83']
 const ease=(n:number)=>{const t=Math.max(0,Math.min(1,n));return t*t*(3-2*t)}
 const lerp=(a:number,b:number,t:number)=>a+(b-a)*t
 const random=(a:number,b:number)=>{const v=Math.sin(a*91.17+b*17.91)*43758.5453;return v-Math.floor(v)}
+/* Deliberate urban composition: a central landmark, stepped skyline, separate
+   commercial/residential districts and an open plaza in the foreground. */
 const houses=[
-  {x:-3.55,z:-1.15,n:5,c:0},{x:-1.65,z:-1.35,n:3,c:1},
-  {x:.15,z:-1.4,n:9,c:3},{x:2.05,z:-1.35,n:5,c:2},
-  {x:3.65,z:-1.35,n:4,c:0},
-  {x:-3.6,z:1.35,n:3,c:4},{x:-1.68,z:1.4,n:4,c:2},
-  {x:.45,z:1.55,n:3,c:1},{x:2.55,z:1.5,n:6,c:4},
+  {x:-4.9,z:-2.65,n:4,c:0},{x:-3.05,z:-2.65,n:6,c:1},
+  {x:-1.2,z:-2.65,n:8,c:3},{x:1.25,z:-2.65,n:11,c:4},
+  {x:3.05,z:-2.65,n:6,c:2},{x:4.9,z:-2.65,n:4,c:0},
+  {x:-4.6,z:-.65,n:3,c:4},{x:-2.65,z:-.65,n:5,c:2},
+  {x:2.65,z:-.65,n:7,c:1},{x:4.6,z:-.65,n:4,c:3},
+  {x:-4.25,z:2.25,n:3,c:2},{x:-2.35,z:2.25,n:4,c:0},
+  {x:2.35,z:2.25,n:5,c:4},{x:4.25,z:2.25,n:3,c:1},
 ]
 type Brick={x:number;y:number;z:number;color:string;seed:number;rank:number}
 const bricks:Brick[]=houses.flatMap((building,bi)=>Array.from({length:building.n},(_,i)=>({
@@ -38,13 +42,21 @@ function Roof({x,z,n,variant,dark}:{x:number;z:number;n:number;variant:number;da
   const y=n*.51+.19
   return <group position={[x,y,z]}>
     <RoundedBox args={[1.33,.23,1.05]} radius={.08} smoothness={3} position={[0,0,0]}><meshStandardMaterial color={dark ? (variant % 2 ? '#55458f' : '#357a8c') : (variant%2?'#eee2f5':'#e5f1ee')} emissive={dark ? (variant % 2 ? '#ad65ff' : '#45efff') : '#000000'} emissiveIntensity={dark ? .65 : 0} roughness={.43}/></RoundedBox>
-    {variant===2?<group>
+    {variant===3?<group>
+      <mesh position={[0,.31,0]}><cylinderGeometry args={[.40,.50,.45,8]}/><meshStandardMaterial color={dark ? "#68477e" : "#ddd4eb"} roughness={.38}/></mesh>
+      <mesh position={[0,.63,0]}><coneGeometry args={[.47,.45,8]}/><meshStandardMaterial color={dark ? "#ff80d9" : "#e3bad6"} emissive={dark ? "#ed60c4" : "#000000"} emissiveIntensity={dark ? .6 : 0}/></mesh>
+      <mesh position={[0,1.0,0]}><cylinderGeometry args={[.025,.025,.42,8]}/><meshStandardMaterial color={dark ? "#7ff6ff" : "#988eb5"}/></mesh>
+    </group>:variant===2?<group>
       <mesh position={[0,.30,0]}><cylinderGeometry args={[.32,.39,.42,16]}/><meshStandardMaterial color="#f7d2bb" roughness={.35}/></mesh>
       <mesh position={[0,.65,0]}><sphereGeometry args={[.28,18,12,0,Math.PI*2,0,Math.PI/2]}/><meshStandardMaterial color="#f4cbaa"/></mesh>
       <mesh position={[0,1.01,0]}><cylinderGeometry args={[.018,.018,.42,8]}/><meshStandardMaterial color="#a69cbd" metalness={.2}/></mesh>
       <mesh position={[0,1.24,0]}><sphereGeometry args={[.065,10,10]}/><meshStandardMaterial color="#fff4c1" emissive="#ecd18d" emissiveIntensity={.65}/></mesh>
     </group>:variant%3===0?
-      <mesh position={[0,.32,0]}><boxGeometry args={[.52,.55,.56]}/><meshStandardMaterial color="#f9f0ec"/></mesh>
+      <group>
+        <mesh position={[0,.27,0]}><boxGeometry args={[.64,.43,.66]}/><meshStandardMaterial color={dark ? "#263e6b" : "#f6e9e4"}/></mesh>
+        <mesh position={[0,.51,0]}><boxGeometry args={[.81,.09,.82]}/><meshStandardMaterial color={dark ? "#7e6fce" : "#e6c2de"}/></mesh>
+        <mesh position={[0,.75,0]}><boxGeometry args={[.065,.42,.065]}/><meshBasicMaterial color={dark ? "#7affff" : "#a8acc3"}/></mesh>
+      </group>
       :<mesh position={[0,.23,0]}><boxGeometry args={[.78,.22,.69]}/><meshStandardMaterial color="#e3d4ed"/></mesh>}
   </group>
 }
@@ -112,29 +124,30 @@ function Village({progressRef,reduced,dark}:{progressRef:React.RefObject<number>
       neonGroup.current.scale.set(1,Math.max(.001,intensity),1)
     }
     if(root.current){
-      const target=.05+ease((p-.7)/.25)*.22
-      root.current.rotation.y+=(target-root.current.rotation.y)*Math.min(1,dt*4)
-      root.current.position.y=Math.sin(state.clock.elapsedTime*.5)*.025
+      const target=.08+ease((p-.68)/.25)*.18
+      root.current.rotation.y+=(target-root.current.rotation.y)*Math.min(1,dt*3.2)
+      root.current.rotation.x+=(.02-root.current.rotation.x)*Math.min(1,dt*2.7)
+      root.current.position.y=Math.sin(state.clock.elapsedTime*.55)*.025
     }
   })
   return <group ref={root}>
-    <RoundedBox args={[11.9,.54,7.25]} radius={.23} smoothness={3} position={[0,-.63,.12]}>
-      <meshStandardMaterial color={dark ? "#131b36" : "#f7f4f3"} roughness={.76}/>
+    <RoundedBox args={[13.65,.78,9.35]} radius={.24} smoothness={3} position={[0,-.75,.02]}>
+      <meshStandardMaterial color={dark ? "#0e1832" : "#f5f0ee"} metalness={dark ? .16 : 0} roughness={.72}/>
     </RoundedBox>
-    <RoundedBox args={[11.45,.1,6.85]} radius={.08} smoothness={2} position={[0,-.33,.12]}>
+    <RoundedBox args={[13.25,.12,8.95]} radius={.095} smoothness={3} position={[0,-.34,.02]}>
       <meshStandardMaterial color={dark ? "#1d2647" : "#e9e8ee"} roughness={.86}/>
     </RoundedBox>
     {/* One central promenade with a pedestrian path and pockets of grass */}
-    <mesh position={[0,-.268,.11]}><boxGeometry args={[.69,.035,6.35]}/><meshStandardMaterial color={dark ? "#243c60" : "#d9d6e2"}/></mesh>
-    <mesh position={[0,-.246,.1]}><boxGeometry args={[.055,.015,6]}/><meshBasicMaterial color="#fbfaf7"/></mesh>
-    <mesh position={[0,-.246,.16]}><boxGeometry args={[11,.025,.54]}/><meshStandardMaterial color={dark ? "#203954" : "#d7d6e1"}/></mesh>
-    {[-4.75,-2.85,-.95,.95,2.85,4.75].map(x=><mesh key={x} position={[x,-.225,.16]}>
+    <mesh position={[0,-.268,.11]}><boxGeometry args={[.85,.035,8.1]}/><meshStandardMaterial color={dark ? "#243c60" : "#d9d6e2"}/></mesh>
+    <mesh position={[0,-.246,.1]}><boxGeometry args={[.05,.015,7.85]}/><meshBasicMaterial color="#fbfaf7"/></mesh>
+    <mesh position={[0,-.246,.16]}><boxGeometry args={[12.45,.025,.59]}/><meshStandardMaterial color={dark ? "#203954" : "#d7d6e1"}/></mesh>
+    {[-5.6,-3.75,-1.9,1.9,3.75,5.6].map(x=><mesh key={x} position={[x,-.225,.16]}>
       <boxGeometry args={[.58,.022,.055]}/><meshBasicMaterial color="#fff8e8"/>
     </mesh>)}
-    {[-5.25,5.24].map(x=><mesh key={x} position={[x,-.252,.12]}>
-      <boxGeometry args={[.58,.055,6.25]}/><meshStandardMaterial color={dark ? "#143d42" : "#c7dfd0"}/>
+    {[-6.18,6.18].map(x=><mesh key={x} position={[x,-.252,.12]}>
+      <boxGeometry args={[.48,.055,8.15]}/><meshStandardMaterial color={dark ? "#143d42" : "#c7dfd0"}/>
     </mesh>)}
-    {[-2.3,0,2.2].flatMap((z,zi)=>[-5.15,5.15].map((x,xi)=><Tree key={zi+'-'+xi} x={x} z={z} size={zi===1?.9:.7} dark={dark}/>))}
+    {[-3.0,.3,3.2].flatMap((z,zi)=>[-6.1,6.1].map((x,xi)=><Tree key={zi+'-'+xi} x={x} z={z} size={zi===1?.9:.7} dark={dark}/>))}
     <instancedMesh ref={blocks} args={[undefined,undefined,bricks.length]} frustumCulled={false}>
       <boxGeometry args={[1.24,.48,1.05]}/><meshStandardMaterial color="#ffffff" emissive={dark ? "#37478e" : "#000000"} emissiveIntensity={dark ? .68 : 0} roughness={.61} metalness={.025}/>
     </instancedMesh>
@@ -161,9 +174,22 @@ function Village({progressRef,reduced,dark}:{progressRef:React.RefObject<number>
         </mesh>
       </group>)}
     </group>
+    {/* Per-building shop awnings and layered façade bands. */}
     <group ref={roofGroup}>
       {houses.map((house,i)=><Roof key={i} x={house.x} z={house.z} n={house.n} variant={i} dark={dark}/>)}
     </group>
+    {/* Illuminated chamfered chassis, discrete in daytime. */}
+    <group position={[0,-.59,.02]}>
+      <mesh position={[0,0,4.7]}><boxGeometry args={[13.24,.055,.075]}/><meshBasicMaterial color={dark ? "#56efff" : "#e3d4f5"} toneMapped={false}/></mesh>
+      <mesh position={[0,0,-4.7]}><boxGeometry args={[13.24,.055,.075]}/><meshBasicMaterial color={dark ? "#ba77ff" : "#d2ebdf"} toneMapped={false}/></mesh>
+      {[-6.82,6.82].map(x=><mesh key={x} position={[x,0,0]}><boxGeometry args={[.07,.055,9.23]}/><meshBasicMaterial color={dark ? "#78aaff" : "#d7deee"} toneMapped={false}/></mesh>)}
+    </group>
+    {/* Slender streetlights turn the toy city into a legible miniature world. */}
+    {[-5.65,-3.85,-1.9,1.9,3.85,5.65].map((x,i)=><group key={'lamp-'+i} position={[x,-.2,.93]}>
+      <mesh position={[0,.39,0]}><cylinderGeometry args={[.026,.039,.85,8]}/><meshStandardMaterial color={dark ? "#3c5784" : "#b6b3c7"} metalness={.32} roughness={.4}/></mesh>
+      <mesh position={[0,.87,0]}><sphereGeometry args={[.104,12,10]}/><meshBasicMaterial color={dark ? (i%2 ? "#ff89d8" : "#7cf9ff") : "#fff8d5"} toneMapped={false}/></mesh>
+      <mesh position={[0,.87,0]}><sphereGeometry args={[.21,12,8]}/><meshBasicMaterial color={dark ? (i%2 ? "#fa7fc3" : "#73e5ef") : "#ffebcd"} transparent opacity={dark ? .10 : .04} depthWrite={false}/></mesh>
+    </group>)}
     <group position={[0,.1,3.2]}>
       <RoundedBox args={[1.9,.32,.79]} radius={.07} smoothness={3}>
         <meshStandardMaterial color="#dccced"/>
@@ -178,7 +204,7 @@ function Village({progressRef,reduced,dark}:{progressRef:React.RefObject<number>
   </group>
 }
 function CityCanvas({progressRef,reduced,dark}:{progressRef:React.RefObject<number>;reduced:boolean;dark:boolean}){
-  return <Canvas camera={{position:[12.8,10.4,15],fov:typeof window !== 'undefined' && window.innerWidth<=760 ? 40 : 34}} dpr={[1,1.6]} gl={{alpha:true,antialias:true,powerPreference:'low-power'}}>
+  return <Canvas camera={{position:[15.3,12.2,19],fov:typeof window !== 'undefined' && window.innerWidth<=760 ? 43 : 35}} dpr={[1,1.6]} gl={{alpha:true,antialias:true,powerPreference:'low-power'}}>
     <ambientLight intensity={dark ? .34 : .7}/>
     <hemisphereLight args={[dark ? '#5893b4' : '#ffffff','#b09cc4',dark ? .37 : .55]}/>
     <directionalLight position={[3,10,7]} intensity={dark ? 1.1 : 1.5} color={dark ? "#8bbfff" : "#fff7ed"}/>
