@@ -223,6 +223,7 @@ function PaintingCanvas({ progress, reducedMotion }: { progress: number; reduced
   const frame = useRef(0)
   const last = useRef(0)
   const lastPaint = useRef(0)
+  const lastDrawn = useRef(-1)
   const brushPosition = useRef<{x:number;y:number}|null>(null)
   const [failed, setFailed] = useState(false)
   const [ready, setReady] = useState(false)
@@ -272,9 +273,11 @@ function PaintingCanvas({ progress, reducedMotion }: { progress: number; reduced
 
       // Limit heavy paint compositing to ~25 fps on phones / ~33 fps on desktop.
       const budget = window.innerWidth <= 760 ? 42 : 30
-      if (imageLoaded.current && (time - lastPaint.current >= budget || current.current === target.current)) {
+      const needsPaint = Math.abs(current.current - lastDrawn.current) > .00005
+      if (imageLoaded.current && needsPaint && (time - lastPaint.current >= budget || current.current === target.current)) {
         renderPainting(canvasRef.current!, surfaces.mask, surfaces.composite, surfaces.art, pigment.current, current.current, surfaces.boundary)
         lastPaint.current = time
+        lastDrawn.current = current.current
       }
 
       const visual = canvasRef.current?.closest<HTMLElement>('.painter-viewport')
