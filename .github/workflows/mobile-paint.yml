@@ -27,7 +27,7 @@ jobs:
         with:
           node-version: '22'
       - name: Install application
-        run: npm ci --no-audit --no-fund
+        run: npm install --no-audit --no-fund
       - name: Install test-only browsers
         run: |
           npm install --no-save playwright@1.56.1
