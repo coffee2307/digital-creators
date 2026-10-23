@@ -210,7 +210,7 @@ body{transition:background-color .32s,color .32s}
 }
 :root[data-theme="dark"] .rubik-halo{border-color:#60dcff75;box-shadow:0 0 24px #70ffff24, inset 0 0 20px #70c7ff12}
 :root[data-theme="dark"] .rubik-visual canvas{filter:drop-shadow(0 0 18px #60e7ff7d) drop-shadow(0 0 31px #ea6eff2b)}
-:root[data-theme="dark"] .city-visual canvas{filter:drop-shadow(0 0 13px #53efff60) drop-shadow(0 0 28px #c76eff31);saturate:1.12}
+:root[data-theme="dark"] .city-visual canvas{filter:drop-shadow(0 0 13px #53efff60) drop-shadow(0 0 28px #c76eff31) saturate(1.12)}
 :root[data-theme="dark"] .painter-canvas{
   filter:drop-shadow(0 0 15px #67dbff55) drop-shadow(0 0 37px #ffc76036) saturate(1.24) contrast(1.08);
 }
