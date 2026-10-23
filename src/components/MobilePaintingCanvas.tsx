@@ -153,6 +153,11 @@ export default function MobilePaintingCanvas({ progress, reducedMotion }: Props)
     let lastPaint = 0
     let brushX = -100
     let brushY = -100
+    let bounds = canvas.getBoundingClientRect()
+    const resizeObserver = typeof ResizeObserver !== 'undefined'
+      ? new ResizeObserver(() => { bounds = canvas.getBoundingClientRect() })
+      : null
+    resizeObserver?.observe(canvas)
     let alive = true
 
     const frame = (time: number) => {
@@ -172,7 +177,6 @@ export default function MobilePaintingCanvas({ progress, reducedMotion }: Props)
         lastPaint = time
       }
       const tip = tipAt(value)
-      const bounds = canvas.getBoundingClientRect()
       const x = tip.x / W * bounds.width
       const y = tip.y / H * bounds.height
       const easing = 1 - Math.exp(-dt / 165)
@@ -204,6 +208,7 @@ export default function MobilePaintingCanvas({ progress, reducedMotion }: Props)
     return () => {
       alive = false
       cancelAnimationFrame(raf)
+      resizeObserver?.disconnect()
       document.removeEventListener('visibilitychange', visibility)
       restartRef.current = () => {}
     }
