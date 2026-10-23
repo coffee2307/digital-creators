@@ -89,6 +89,7 @@ function renderPainting(
   art: HTMLCanvasElement,
   pigment: string[],
   amount: number,
+  boundary: HTMLCanvasElement,
 ) {
   const ctx = output.getContext('2d')
   const m = mask.getContext('2d')
@@ -163,6 +164,10 @@ function renderPainting(
     }
   }
   ctx.globalAlpha = 1
+  // Physically feather the artwork itself before any glow. No clipped canvas box.
+  ctx.globalCompositeOperation = 'destination-in'
+  ctx.drawImage(boundary, 0, 0)
+  ctx.globalCompositeOperation = 'source-over'
 }
 
 function makeCanvas() {
@@ -172,12 +177,44 @@ function makeCanvas() {
   return canvas
 }
 
+/** A feathered, irregular pigment boundary instead of a rectangular canvas edge.
+ * Build once per mount; alpha is opaque centrally and fades before image boundaries. */
+function createPaintBoundary() {
+  const out = makeCanvas()
+  const ctx = out.getContext('2d')
+  if (!ctx) return out
+  const image = ctx.createImageData(W, H)
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const nx = (x - W * .5) / (W * .445)
+      const ny = (y - H * .49) / (H * .435)
+      const angle = Math.atan2(ny, nx)
+      const radius = Math.hypot(nx, ny)
+      const edge = 1
+        + .055 * Math.sin(5 * angle + .42)
+        + .038 * Math.cos(9 * angle - 1.6)
+        + .022 * Math.sin(17 * angle + 1.5)
+        + .015 * Math.cos(27 * angle - .7)
+      const ratio = radius / edge
+      const t = clamp((ratio - .80) / .20)
+      const smooth = t * t * (3 - 2 * t)
+      const offset = (y * W + x) * 4
+      image.data[offset] = 255
+      image.data[offset + 1] = 255
+      image.data[offset + 2] = 255
+      image.data[offset + 3] = Math.round((1 - smooth) * 255)
+    }
+  }
+  ctx.putImageData(image, 0, 0)
+  return out
+}
+
 function PaintingCanvas({ progress, reducedMotion }: { progress: number; reducedMotion: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const brushRef = useRef<SVGSVGElement>(null)
   const surfaces = useMemo(() => {
     if (typeof document === 'undefined') return null
-    return { mask: makeCanvas(), composite: makeCanvas(), art: makeCanvas() }
+    return { mask: makeCanvas(), composite: makeCanvas(), art: makeCanvas(), boundary: createPaintBoundary() }
   }, [])
   const pigment = useRef<string[]>([])
   const imageLoaded = useRef(false)
@@ -226,8 +263,10 @@ function PaintingCanvas({ progress, reducedMotion }: { progress: number; reduced
       current.current += (target.current - current.current) * factor
       if (Math.abs(target.current - current.current) < .0007) current.current = target.current
       if (imageLoaded.current) {
-        renderPainting(canvasRef.current!, surfaces.mask, surfaces.composite, surfaces.art, pigment.current, current.current)
+        renderPainting(canvasRef.current!, surfaces.mask, surfaces.composite, surfaces.art, pigment.current, current.current, surfaces.boundary)
       }
+      const visual = canvasRef.current?.closest<HTMLElement>('.painter-viewport')
+      visual?.style.setProperty('--paint-reveal', String(current.current))
       const tip = strokeTip(current.current)
       const brush = brushRef.current
       if (brush) {
@@ -245,6 +284,7 @@ function PaintingCanvas({ progress, reducedMotion }: { progress: number; reduced
 
   return <figure className="painter-viewport">
     <div className="painter-surface">
+      <div className="painter-aura" aria-hidden="true"/>
       <div className="painter-surface-grain" aria-hidden="true" />
       <canvas ref={canvasRef} className="painter-canvas" width={W} height={H}
         role="img" aria-label="Nét cọ sơn dầu dần vẽ Đêm đầy sao theo vị trí cuộn" />
