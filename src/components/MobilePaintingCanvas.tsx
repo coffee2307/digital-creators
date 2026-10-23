@@ -1,108 +1,136 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 
-/** Low-memory mobile painter. Work is limited to a 420×336 canvas and ~12fps.
- * The RAF is stable across scroll events, and stops when the page is hidden. */
-const W = 420
-const H = 336
-const COUNT = 88
-const clamp = (n: number) => Math.max(0, Math.min(1, n))
+/**
+ * Shared scroll-controlled painting for phones and desktops.
+ * No autonomous animation, timer, brush easing or accumulated progress.
+ * Every painted pixel and the tip position come from the SAME scroll value.
+ */
+const clamp = (v: number) => Math.max(0, Math.min(1, v))
 const rand = (n: number) => {
-  const x = Math.sin(n * 81.31 + 19.17) * 43758.5453
+  const x = Math.sin(n * 79.13 + 17.97) * 43758.5453
   return x - Math.floor(x)
 }
-type Stroke = { x: number; y: number; dx: number; dy: number; bend: number; width: number }
-const strokes: Stroke[] = Array.from({ length: COUNT }, (_, i) => {
-  const angle = i * 2.39996323 + (rand(i + 13) - .5) * .5
-  const r = Math.sqrt((i + .5) / COUNT)
-  const cx = W * .50 + Math.cos(angle) * W * .44 * r
-  const cy = H * .49 + Math.sin(angle) * H * .43 * r
-  const a = angle + Math.PI / 2 + (rand(i + 45) - .5) * .9
-  const length = 75 + rand(i + 84) * 55
-  const dx = Math.cos(a) * length
-  const dy = Math.sin(a) * length
-  return { x: cx - dx * .50, y: cy - dy * .50, dx, dy,
-    bend: (rand(i + 121) - .5) * 31, width: 30 + rand(i + 160) * 29 }
-})
+type Track = { y: number; flip: boolean; wave: number; phase: number; width: number }
+type Point = { x: number; y: number }
+type Geometry = { width: number; height: number; tracks: Track[] }
+const configurations = {
+  mobile: { width: 420, height: 336, rows: 17 },
+  desktop: { width: 840, height: 672, rows: 23 },
+} as const
 
-function line(ctx: CanvasRenderingContext2D, s: Stroke, f: number, offset = 0, width = s.width) {
-  if (f <= 0) return
-  const length = Math.hypot(s.dx, s.dy) || 1
-  const nx = -s.dy / length
-  const ny = s.dx / length
+function geometry(mobile: boolean): Geometry {
+  const spec = mobile ? configurations.mobile : configurations.desktop
+  const band = spec.height / spec.rows
+  const tracks: Track[] = Array.from({ length: spec.rows }, (_, row) => ({
+    y: band * (row + .5),
+    flip: row % 2 === 1,
+    wave: band * (.08 + rand(row + 5) * .13),
+    phase: rand(row + 19) * Math.PI * 2,
+    width: band * (1.26 + rand(row + 48) * .28),
+  }))
+  return { width: spec.width, height: spec.height, tracks }
+}
+
+/** The tip and the actual stroke use exactly this point function. */
+function pointOnRow(g: Geometry, row: number, t: number): Point {
+  const track = g.tracks[row]
+  const f = clamp(t)
+  const left = g.width * .025
+  const right = g.width * .975
+  const x = track.flip ? right - (right - left) * f : left + (right - left) * f
+  const wiggle = Math.sin(f * Math.PI * 2 + track.phase) - Math.sin(track.phase) * (1 - f)
+  const finer = Math.sin(f * Math.PI * 5 + track.phase * .5) * .24
+  return { x, y: track.y + (wiggle + finer) * track.wave }
+}
+
+function currentTip(g: Geometry, progress: number): Point {
+  const scaled = clamp(progress) * g.tracks.length
+  const index = Math.min(g.tracks.length - 1, Math.floor(scaled))
+  const phase = scaled >= g.tracks.length ? 1 : scaled - index
+  // 94% of each chapter paints across a row, 6% lowers the brush into next row.
+  if (phase <= .94 || index === g.tracks.length - 1) {
+    return pointOnRow(g, index, phase >= .94 ? 1 : phase / .94)
+  }
+  const from = pointOnRow(g, index, 1)
+  const to = pointOnRow(g, index + 1, 0)
+  const t = (phase - .94) / .06
+  return { x: from.x + (to.x - from.x) * t, y: from.y + (to.y - from.y) * t }
+}
+
+function drawStroke(ctx: CanvasRenderingContext2D, g: Geometry, row: number, part: number, shift: number, width: number) {
+  if (part <= 0) return
+  const steps = Math.max(2, Math.ceil(part * 52))
   ctx.beginPath()
-  ctx.moveTo(s.x + nx * offset, s.y + ny * offset)
-  ctx.bezierCurveTo(
-    s.x + s.dx * f * .28 + nx * (offset + s.bend),
-    s.y + s.dy * f * .28 + ny * (offset + s.bend),
-    s.x + s.dx * f * .75 + nx * (offset - s.bend * .38),
-    s.y + s.dy * f * .75 + ny * (offset - s.bend * .38),
-    s.x + s.dx * f + nx * offset,
-    s.y + s.dy * f + ny * offset,
-  )
+  for (let step = 0; step <= steps; step++) {
+    const f = part * (step / steps)
+    const point = pointOnRow(g, row, f)
+    if (step === 0) ctx.moveTo(point.x, point.y + shift)
+    else ctx.lineTo(point.x, point.y + shift)
+  }
   ctx.lineWidth = width
   ctx.stroke()
 }
 
-function tipAt(amount: number) {
-  const n = clamp(amount) * COUNT
-  const i = Math.min(COUNT - 1, Math.floor(n))
-  const s = strokes[i]
-  const phase = n === COUNT ? 1 : n - i
-  if (i > 0 && phase < .18) {
-    const previous = strokes[i - 1]
-    const t = phase / .18
-    const ease = t * t * (3 - 2 * t)
-    return {
-      x: previous.x + previous.dx + (s.x - previous.x - previous.dx) * ease,
-      y: previous.y + previous.dy + (s.y - previous.y - previous.dy) * ease - Math.sin(Math.PI * t) * 8,
-    }
+function makeEdge(g: Geometry): HTMLCanvasElement {
+  const out = document.createElement('canvas')
+  out.width = g.width
+  out.height = g.height
+  const ctx = out.getContext('2d')
+  if (!ctx) return out
+  // Organic, feathered edges instead of an opaque rectangle.
+  const edge = ctx.createImageData(g.width, g.height)
+  for (let y = 0; y < g.height; y++) for (let x = 0; x < g.width; x++) {
+    const nx = (x - g.width * .5) / (g.width * .47)
+    const ny = (y - g.height * .5) / (g.height * .46)
+    const angle = Math.atan2(ny, nx)
+    const radius = Math.hypot(nx, ny) /
+      (1 + .043 * Math.sin(angle * 7) + .025 * Math.sin(angle * 13 + .8))
+    const q = clamp((radius - .81) / .19)
+    const fade = 1 - q * q * (3 - 2 * q)
+    const index = (y * g.width + x) * 4
+    edge.data[index] = 255
+    edge.data[index + 1] = 255
+    edge.data[index + 2] = 255
+    edge.data[index + 3] = Math.round(fade * 255)
   }
-  const t = clamp((phase - .18) / .82)
-  return { x: s.x + s.dx * t, y: s.y + s.dy * t }
+  ctx.putImageData(edge, 0, 0)
+  return out
 }
 
-function edgeMask() {
-  const canvas = document.createElement('canvas')
-  canvas.width = W
-  canvas.height = H
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return canvas
-  ctx.translate(W * .5, H * .5)
-  ctx.scale(1, .81)
-  const gradient = ctx.createRadialGradient(0, 0, W * .31, 0, 0, W * .55)
-  gradient.addColorStop(0, '#fff')
-  gradient.addColorStop(.62, '#fff')
-  gradient.addColorStop(1, 'rgba(255,255,255,0)')
-  ctx.fillStyle = gradient
-  ctx.fillRect(-W, -H, W * 2, H * 2)
-  return canvas
-}
-
-function paint(canvas: HTMLCanvasElement, mask: HTMLCanvasElement, edge: HTMLCanvasElement, image: HTMLImageElement, progress: number) {
+function paint(
+  canvas: HTMLCanvasElement,
+  mask: HTMLCanvasElement,
+  edge: HTMLCanvasElement,
+  image: HTMLImageElement,
+  g: Geometry,
+  progress: number,
+) {
   const ctx = canvas.getContext('2d')
   const m = mask.getContext('2d')
   if (!ctx || !m) return
   const p = clamp(progress)
-  const count = p >= .98 ? COUNT : p * COUNT
-  m.clearRect(0, 0, W, H)
+  ctx.clearRect(0, 0, g.width, g.height)
+  if (p <= 0) return
+  m.clearRect(0, 0, g.width, g.height)
+  m.strokeStyle = '#fff'
   m.lineCap = 'round'
   m.lineJoin = 'round'
-  m.strokeStyle = '#fff'
-  for (let i = 0; i < Math.ceil(count); i++) {
-    const f = clamp((count - i - .18) / .82)
-    if (!f) continue
-    const s = strokes[i]
+  const count = p * g.tracks.length
+  for (let row = 0; row < Math.ceil(count); row++) {
+    const fraction = clamp((count - row) / .94)
+    if (!fraction) continue
+    const track = g.tracks[row]
     m.globalAlpha = 1
-    line(m, s, f)
-    m.globalAlpha = .56
-    line(m, s, f, s.width * .34, s.width * .17)
-    line(m, s, f, -s.width * .37, s.width * .13)
+    drawStroke(m, g, row, fraction, 0, track.width)
+    m.globalAlpha = .65
+    drawStroke(m, g, row, fraction, -track.width * .3, track.width * .23)
+    drawStroke(m, g, row, fraction, track.width * .33, track.width * .20)
   }
   m.globalAlpha = 1
-  ctx.clearRect(0, 0, W, H)
+
   ctx.globalCompositeOperation = 'source-over'
-  ctx.drawImage(image, 0, 0, W, H)
-  if (p < .98) {
+  ctx.drawImage(image, 0, 0, g.width, g.height)
+  if (p < .999) {
     ctx.globalCompositeOperation = 'destination-in'
     ctx.drawImage(mask, 0, 0)
   }
@@ -111,138 +139,69 @@ function paint(canvas: HTMLCanvasElement, mask: HTMLCanvasElement, edge: HTMLCan
   ctx.globalCompositeOperation = 'source-over'
 }
 
-type Props = { progress: number; reducedMotion: boolean }
-export default function MobilePaintingCanvas({ progress, reducedMotion }: Props) {
+type Props = { progress: number; reducedMotion: boolean; mobile?: boolean }
+
+export default function MobilePaintingCanvas({ progress, reducedMotion, mobile = true }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const brushRef = useRef<SVGSVGElement>(null)
-  const auraRef = useRef<HTMLDivElement>(null)
-  const targetRef = useRef(0)
-  const drawnRef = useRef(0)
-  const restartRef = useRef<() => void>(() => {})
   const [image, setImage] = useState<HTMLImageElement | null>(null)
   const [failed, setFailed] = useState(false)
+  const cached = useRef<{ g: Geometry; mask: HTMLCanvasElement; edge: HTMLCanvasElement; mode: boolean } | null>(null)
+  const visibleProgress = reducedMotion ? 1 : clamp((progress - .015) / .945)
+  const dimensions = mobile ? configurations.mobile : configurations.desktop
+  const brushGeometry = geometry(mobile)
+  const tip = currentTip(brushGeometry, visibleProgress)
+  const brushOpacity = reducedMotion ? 0 : clamp(Math.min(visibleProgress * 22, (1 - visibleProgress) * 12))
 
   useEffect(() => {
-    let live = true
-    const img = new Image()
-    img.onload = () => { if (live) setImage(img) }
-    img.onerror = () => { if (live) setFailed(true) }
-    img.src = import.meta.env.BASE_URL + 'starry-night.webp'
-    return () => { live = false }
+    let mounted = true
+    const art = new Image()
+    art.onload = () => { if (mounted) setImage(art) }
+    art.onerror = () => { if (mounted) setFailed(true) }
+    art.src = import.meta.env.BASE_URL + 'starry-night.webp'
+    return () => { mounted = false }
   }, [])
 
-  useEffect(() => {
-    targetRef.current = reducedMotion ? 1 : clamp((progress - .015) / .945)
-    restartRef.current()
-  }, [progress, reducedMotion])
-
-  useEffect(() => {
+  // One synchronous render for one scroll value. No time-based catch-up,
+  // brush lag, separate RAF or fallback interval, even in Safari.
+  useLayoutEffect(() => {
     const canvas = canvasRef.current
     if (!canvas || !image) return
-    if (!canvas.getContext('2d')) {
-      setFailed(true)
-      return
+    if (!cached.current || cached.current.mode !== mobile) {
+      const g = geometry(mobile)
+      const mask = document.createElement('canvas')
+      mask.width = g.width
+      mask.height = g.height
+      cached.current = { g, mask, edge: makeEdge(g), mode: mobile }
     }
-    const mask = document.createElement('canvas')
-    mask.width = W
-    mask.height = H
-    const edge = edgeMask()
-    let raf = 0
-    let fallbackTimer = 0
-    let previous = 0
-    let lastDrawn = -1
-    let lastPaint = 0
-    let brushX = -100
-    let brushY = -100
-    let bounds = canvas.getBoundingClientRect()
-    const resizeObserver = typeof ResizeObserver !== 'undefined'
-      ? new ResizeObserver(() => { bounds = canvas.getBoundingClientRect() })
-      : null
-    resizeObserver?.observe(canvas)
-    let alive = true
+    const { g, mask, edge } = cached.current
+    paint(canvas, mask, edge, image, g, visibleProgress)
+  }, [visibleProgress, mobile, image])
 
-    const frame = (time: number) => {
-      raf = 0
-      if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = 0 }
-      if (!alive || document.hidden) return
-      const dt = previous ? Math.min(550, Math.max(1, time - previous)) : 16
-      previous = time
-      const target = targetRef.current
-      const remaining = target - drawnRef.current
-      const maxStep = reducedMotion ? 1 : dt * .00023
-      drawnRef.current += Math.sign(remaining) * Math.min(Math.abs(remaining), maxStep)
-      if (Math.abs(drawnRef.current - target) < .001) drawnRef.current = target
-      const value = drawnRef.current
-      if (Math.abs(lastDrawn - value) > .009 && (time - lastPaint >= 82 || value === target)) {
-        paint(canvas, mask, edge, image, value)
-        lastDrawn = value
-        lastPaint = time
-      }
-      const tip = tipAt(value)
-      const x = tip.x / W * bounds.width
-      const y = tip.y / H * bounds.height
-      const easing = 1 - Math.exp(-dt / 165)
-      brushX = brushX < -50 ? x : brushX + (x - brushX) * easing
-      brushY = brushY < -50 ? y : brushY + (y - brushY) * easing
-      if (brushRef.current) {
-        brushRef.current.style.transform = 'translate3d(' + brushX.toFixed(1) + 'px, ' + brushY.toFixed(1) + 'px, 0) translate(-47%, -97%) rotate(-9deg)'
-        brushRef.current.style.opacity = reducedMotion ? '0' : String(clamp(Math.min(value * 24, (1 - value) * 8)))
-      }
-      if (auraRef.current) auraRef.current.style.opacity = String(.08 + value * .8)
-      if (Math.abs(target - value) > .001 || Math.hypot(brushX - x, brushY - y) > 2) {
-        schedule()
-      } else previous = 0
-    }
+  const brushStyle: CSSProperties = {
+    left: (tip.x / dimensions.width * 100) + '%',
+    top: (tip.y / dimensions.height * 100) + '%',
+    transform: 'translate3d(-47%, -97%, 0) rotate(-9deg)',
+    opacity: brushOpacity,
+  }
+  const auraStyle: CSSProperties = { opacity: .08 + visibleProgress * .80 }
 
-    // Mobile Safari can suppress requestAnimationFrame during momentum scrolling
-    // or in power-save mode, even while the document remains visible.
-    // A backup timer guarantees that the image continues to be painted.
-    const schedule = () => {
-      if (!alive || document.hidden || raf || fallbackTimer) return
-      raf = requestAnimationFrame(frame)
-      fallbackTimer = window.setTimeout(() => {
-        if (raf) cancelAnimationFrame(raf)
-        raf = 0
-        fallbackTimer = 0
-        frame(performance.now())
-      }, 120)
-    }
-    const start = () => { schedule() }
-    const visibility = () => {
-      if (document.hidden) {
-        cancelAnimationFrame(raf)
-        clearTimeout(fallbackTimer)
-        raf = 0
-        fallbackTimer = 0
-        previous = 0
-      } else start()
-    }
-    restartRef.current = start
-    document.addEventListener('visibilitychange', visibility)
-    start()
-    return () => {
-      alive = false
-      cancelAnimationFrame(raf)
-      clearTimeout(fallbackTimer)
-      resizeObserver?.disconnect()
-      document.removeEventListener('visibilitychange', visibility)
-      restartRef.current = () => {}
-    }
-  }, [image, reducedMotion])
-
-  return <figure className="painter-viewport painter-mobile-viewport">
+  return <figure className={'painter-viewport' + (mobile ? ' painter-mobile-viewport' : '')}
+    data-paint-progress={visibleProgress.toFixed(4)}
+    data-brush-row={Math.min(brushGeometry.tracks.length - 1, Math.floor(visibleProgress * brushGeometry.tracks.length))}
+    style={{ '--paint-reveal': visibleProgress } as CSSProperties}>
     <div className="painter-surface">
-      <div ref={auraRef} className="painter-aura" aria-hidden="true"/>
-      <canvas ref={canvasRef} width={W} height={H} className="painter-canvas painter-mobile-canvas"
-        role="img" aria-label="Nét cọ dần vẽ Đêm đầy sao khi cuộn" />
-      {failed && <img className="painter-mobile-fallback" src={import.meta.env.BASE_URL + 'starry-night.webp'} alt="Đêm đầy sao của Vincent van Gogh"/>}
-      <svg ref={brushRef} className="painter-brush painter-mobile-brush" viewBox="0 0 120 195" aria-hidden="true">
-        <defs>
-          <linearGradient id="mobile-wood" x1="0" x2="1" y1="0" y2="1">
-            <stop stopColor="#dfab73"/><stop offset="1" stopColor="#8f5f45"/>
-          </linearGradient>
-        </defs>
-        <path d="M53 4Q60 -1 67 4L64 142H56Z" fill="url(#mobile-wood)" stroke="#9c7250" strokeWidth="1.3"/>
+      <div className="painter-aura" style={auraStyle} aria-hidden="true"/>
+      <canvas ref={canvasRef} width={dimensions.width} height={dimensions.height}
+        className={'painter-canvas' + (mobile ? ' painter-mobile-canvas' : '')}
+        role="img" aria-label="Cọ vẽ ngang qua lại từ trên xuống, đồng bộ với thao tác cuộn" />
+      {failed && <img className="painter-mobile-fallback"
+        src={import.meta.env.BASE_URL + 'starry-night.webp'} alt="Đêm đầy sao của Vincent van Gogh" />}
+      <svg className={'painter-brush' + (mobile ? ' painter-mobile-brush' : '')}
+        style={brushStyle} viewBox="0 0 120 195" aria-hidden="true">
+        <defs><linearGradient id="painting-handle-wood" x1="0" x2="1" y1="0" y2="1">
+          <stop stopColor="#dfab73"/><stop offset="1" stopColor="#8f5f45"/>
+        </linearGradient></defs>
+        <path d="M53 4Q60 -1 67 4L64 142H56Z" fill="url(#painting-handle-wood)" stroke="#9c7250" strokeWidth="1.3"/>
         <path d="M55 139H65L68 166H52Z" fill="#a9b1c1" stroke="#f5efe8" strokeWidth="2"/>
         <path d="M53 165Q55 182 60 193Q68 181 67 165Z" fill="#e2ccac" stroke="#8f8078" strokeWidth="1.1"/>
         <path d="M57 183Q59 191 60 193Q63 190 64 183Z" fill="#4164a6"/>
