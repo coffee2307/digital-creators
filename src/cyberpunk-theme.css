@@ -245,3 +245,9 @@ body{transition:background-color .32s,color .32s}
   :root .dc-theme-thumb,
   :root body{transition:none!important}
 }
+
+/* Chapter changes are sequential, not a crossfade: hide the previous headline
+   immediately to prevent readable text from stacking during scroll scrubbing. */
+.motion-copy-panel{
+  transition:opacity .32s ease,transform .44s cubic-bezier(.2,.75,.2,1);
+}
